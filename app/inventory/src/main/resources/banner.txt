@@ -1,0 +1,9 @@
+${AnsiColor.GREEN}
+    __    _ __      ____                      __
+   / /   (_) /     /  _/___ _   _____  ____  / /_____  _______  __
+  / /   / / /_____ / // __ \ | / / _ \/ __ \/ __/ __ \/ ___/ / / /
+ / /___/ / /_____// // / / / |/ /  __/ / / / /_/ /_/ / /  / /_/ /
+/_____/_/_/     /___/_/ /_/|___/\___/_/ /_/\__/\____/_/   \__, /
+                                                         /____/   ${AnsiColor.DEFAULT}
+${application.title} : ${application.formatted-version}
+Spring Boot : ${spring-boot.formatted-version}

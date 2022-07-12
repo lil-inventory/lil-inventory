@@ -1,0 +1,39 @@
+## Note: Sets up the database for local development and testing
+
+version: '3.8'
+
+services:
+
+  # database: persistence
+  db:
+    image: "mysql:8.0"
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_USER: inventory
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: inventory
+      MYSQL_ROOT_PASSWORD: password
+
+  # liquibase: database setup. takes about 1 minute to finish.
+  liquibase:
+    image: liquibase/liquibase:4.10
+    environment:
+      INSTALL_MYSQL: 'true'
+    links:
+      - db
+    volumes:
+      - ./app/inventory/src/main/db/org/ivcode/inventory/changelog:/liquibase/changelog:ro
+    command:
+      --url=jdbc:mysql://db:3306/inventory?allowPublicKeyRetrieval=true&autoReconnect=true&maxReconnects=10
+      --changeLogFile=db.changelog-root.xml
+      --username=inventory
+      --password=password
+      update
+
+  # smtp: fake smtp server for emails
+  smtp:
+    image: reachfive/fake-smtp-server:0.8.1
+    ports:
+      - 1080:1080
+      - 1025:1025

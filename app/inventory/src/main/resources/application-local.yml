@@ -1,0 +1,28 @@
+# Profile for local development and testing. See docker-compose.yml for environment setup
+
+application:
+  title: Inventory
+  version: 0.00
+  formatted-version: (v${application.version})
+  home-path: /swagger-ui/index.html
+  key: wjG1Hnw6I04PuL6FF0VKAVwYxF85v0zE3Oi9QeMiyws=
+
+spring:
+  servlet.multipart:
+    max-file-size: 1MB
+    max-request-size: 1MB
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/inventory?allowPublicKeyRetrieval=true
+    username: inventory
+    password: password
+
+  output.ansi.enabled: always
+
+smtp:
+  host: localhost
+  port: 1025
+  from: no-reply@lil-inventory.com
+
+logging.level.org.mybatis.spring: TRACE
+logging.level.org.ivcode.inventory: TRACE

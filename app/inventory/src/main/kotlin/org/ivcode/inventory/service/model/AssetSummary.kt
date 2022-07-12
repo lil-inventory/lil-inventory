@@ -1,0 +1,11 @@
+package org.ivcode.inventory.service.model
+
+import io.swagger.v3.oas.annotations.media.Schema
+
+@Schema(description = "An asset summary")
+data class AssetSummary (
+    val assetId: Int,
+    val type: AssetType,
+    val name: String,
+    val barcode: String?
+)
