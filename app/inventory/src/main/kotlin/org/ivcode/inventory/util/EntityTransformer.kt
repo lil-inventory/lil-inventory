@@ -80,5 +80,10 @@ fun ImageInfoEntity.toAssetImageInfo() = AssetImageInfo (
     mime = this.mime!!
 )
 
+fun InventoryEntity.toInventory() = Inventory (
+    inventoryId = this.inventoryId!!,
+    name = this.name
+)
+
 fun parsePath(path: String?) =
     objectMapper.readValue(path ?: "[]", Array<GroupPathElement>::class.java).asList()

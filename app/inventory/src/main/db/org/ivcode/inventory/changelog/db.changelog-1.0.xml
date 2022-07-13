@@ -117,9 +117,23 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
 
     <!-- Inventory -->
     <changeSet author="isaiah" id="1.0.8">
+        <createTable tableName="inventory">
+            <column name="inventory_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="VARCHAR(127)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="isaiah" id="1.0.9">
         <createTable tableName="group">
             <column name="group_id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false" unique="true"/>
+            </column>
+            <column name="inventory_id" type="BIGINT" >
+                <constraints nullable="false"/>
             </column>
             <column name="parent_group_id" type="BIGINT" />
             <column name="name" type="VARCHAR(127)">
@@ -128,7 +142,19 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
         </createTable>
     </changeSet>
 
-    <changeSet  author="isaiah"  id="1.0.9">
+    <changeSet  author="isaiah"  id="1.0.10">
+        <addForeignKeyConstraint
+                baseColumnNames="inventory_id"
+                baseTableName="group"
+                constraintName="fk_group_inventory"
+                onDelete="CASCADE"
+                onUpdate="RESTRICT"
+                referencedColumnNames="inventory_id"
+                referencedTableName="inventory"
+        />
+    </changeSet>
+
+    <changeSet  author="isaiah"  id="1.0.11">
         <addForeignKeyConstraint
                 baseColumnNames="parent_group_id"
                 baseTableName="group"
@@ -140,10 +166,13 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
         />
     </changeSet>
 
-    <changeSet author="isaiah" id="1.0.10">
+    <changeSet author="isaiah" id="1.0.12">
         <createTable tableName="asset">
             <column name="asset_id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false" unique="true"/>
+            </column>
+            <column name="inventory_id" type="BIGINT" >
+                <constraints nullable="false"/>
             </column>
             <column name="name" type="VARCHAR(127)">
                 <constraints nullable="false"/>
@@ -160,7 +189,7 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
         </createTable>
     </changeSet>
 
-    <changeSet author="isaiah" id="1.0.11">
+    <changeSet author="isaiah" id="1.0.13">
         <sql>
             ALTER TABLE `asset`
             ADD CONSTRAINT chk_quantity CHECK (`quantity` >= 0);
@@ -171,19 +200,31 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
         </rollback>
     </changeSet>
 
-    <changeSet  author="isaiah"  id="1.0.12">
+    <changeSet  author="isaiah"  id="1.0.14">
+        <addForeignKeyConstraint
+                baseColumnNames="inventory_id"
+                baseTableName="asset"
+                constraintName="fk_asset_inventory"
+                onDelete="CASCADE"
+                onUpdate="RESTRICT"
+                referencedColumnNames="inventory_id"
+                referencedTableName="inventory"
+        />
+    </changeSet>
+
+    <changeSet  author="isaiah"  id="1.0.15">
         <addForeignKeyConstraint
                 baseColumnNames="group_id"
                 baseTableName="asset"
                 constraintName="fk_asset_group"
-                onDelete="RESTRICT"
+                onDelete="CASCADE"
                 onUpdate="RESTRICT"
                 referencedColumnNames="group_id"
                 referencedTableName="group"
         />
     </changeSet>
 
-    <changeSet author="isaiah" id="1.0.13">
+    <changeSet author="isaiah" id="1.0.16">
         <createTable tableName="checkout">
             <column name="checkout_id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false" unique="true"/>
@@ -203,7 +244,7 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
         </createTable>
     </changeSet>
 
-    <changeSet  author="isaiah"  id="1.0.14">
+    <changeSet  author="isaiah"  id="1.0.17">
         <addForeignKeyConstraint
                 baseColumnNames="asset_id"
                 baseTableName="checkout"
@@ -215,7 +256,7 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
         />
     </changeSet>
 
-    <changeSet  author="isaiah"  id="1.0.15">
+    <changeSet author="isaiah" id="1.0.18">
         <addForeignKeyConstraint
                 baseColumnNames="user_id"
                 baseTableName="checkout"
@@ -227,7 +268,7 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
         />
     </changeSet>
 
-    <changeSet author="isaiah" id="1.0.16">
+    <changeSet author="isaiah" id="1.0.19">
         <createTable tableName="image">
             <column name="image_id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false" unique="true"/>
@@ -247,7 +288,7 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
         </createTable>
     </changeSet>
 
-    <changeSet  author="isaiah"  id="1.0.17">
+    <changeSet author="isaiah" id="1.0.20">
         <addForeignKeyConstraint
                 baseColumnNames="asset_id"
                 baseTableName="image"

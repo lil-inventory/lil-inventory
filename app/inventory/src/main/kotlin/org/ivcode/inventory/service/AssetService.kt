@@ -21,7 +21,6 @@ class AssetService(
     private val checkoutDao: CheckoutDao,
     private val groupDao: GroupDao,
     private val imageDao: ImageDao,
-    private val userService: AuthService
 ) {
 
     @Transactional
