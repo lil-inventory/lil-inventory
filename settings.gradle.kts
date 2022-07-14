@@ -3,6 +3,7 @@ include("app:inventory")
 include("app:auth")
 include("app:common")
 include("app:email")
+include("app:server")
 
 enableFeaturePreview("VERSION_CATALOGS")
 dependencyResolutionManagement {
@@ -41,3 +42,4 @@ dependencyResolutionManagement {
         }
     }
 }
+

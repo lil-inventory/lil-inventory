@@ -1,5 +1,3 @@
-import org.springframework.boot.gradle.tasks.bundling.BootJar
-
 plugins {
     kotlin("jvm") version "1.6.10"
     kotlin("plugin.spring") version "1.6.10"
@@ -7,28 +5,25 @@ plugins {
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
 }
 
-version = "unspecified"
+group = "org.ivcode"
+version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation(project(":app:common"))
-    implementation(project(":app:auth"))
 
-    // Kotlin
     implementation(kotlin("stdlib"))
+
+    // modules
+    implementation(project(":app:inventory"))
+    implementation(project(":app:auth"))
 
     // Spring
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-security")
 
     // Libs
-    implementation(libs.mysql.connector)
-    implementation(libs.bundles.mybatis)
     implementation(libs.bundles.springdoc)
-}
-
-tasks.getByName<BootJar>("bootJar") {
-    enabled = false
 }
