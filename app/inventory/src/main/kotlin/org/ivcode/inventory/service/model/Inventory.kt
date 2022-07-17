@@ -1,7 +1,6 @@
 package org.ivcode.inventory.service.model
 
-data class GroupPathElement (
-    val groupId: Long,
+data class Inventory(
+    val inventoryId: Long,
     val name: String
 )
-

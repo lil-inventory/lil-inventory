@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 @Schema(description = "Asset checkout information")
 data class Checkout(
     @Schema(description = "checkout identifier")
-    val checkoutId: Int,
+    val checkoutId: Long,
 
     @Schema(description = "Who checked out the asset")
     val username: String,

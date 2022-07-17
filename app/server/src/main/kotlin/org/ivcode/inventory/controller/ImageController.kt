@@ -21,7 +21,7 @@ class ImageController(
     @GetMapping("/{imageId}/image")
     @Operation(
         responses = [ApiResponse(description = "image data", content = [Content(schema = Schema(hidden = true))])])
-    fun readImage(@PathVariable imageId: Int): ResponseEntity<StreamingResponseBody> {
+    fun readImage(@PathVariable imageId: Long): ResponseEntity<StreamingResponseBody> {
         val image = imageService.getImageInfo(imageId)
 
         val stream = StreamingResponseBody { out ->
@@ -35,13 +35,13 @@ class ImageController(
     }
 
     @GetMapping("/{imageId}/metadata")
-    fun readImageInfo(@PathVariable imageId: Int): ImageInfo =
+    fun readImageInfo(@PathVariable imageId: Long): ImageInfo =
         imageService.getImageInfo(imageId)
 
     @PostMapping(consumes=[MediaType.MULTIPART_FORM_DATA_VALUE])
     fun postImage(
         @RequestParam("" +
-                "") assetId: Int,
+                "") assetId: Long,
         @RequestParam("image") multipartFile: MultipartFile
     ): ImageInfo = imageService.addImage(
         assetId = assetId,
@@ -51,6 +51,6 @@ class ImageController(
     )
 
     @DeleteMapping("/{imageId}")
-    fun deleteImage (@PathVariable imageId: Int) =
+    fun deleteImage (@PathVariable imageId: Long) =
         imageService.deleteImage(imageId)
 }

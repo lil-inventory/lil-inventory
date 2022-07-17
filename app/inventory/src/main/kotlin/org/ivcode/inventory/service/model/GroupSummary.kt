@@ -6,10 +6,13 @@ import io.swagger.v3.oas.annotations.media.Schema
 data class GroupSummary (
 
     @Schema(description = "Group Identifier")
-    val groupId: Int,
+    val groupId: Long,
+
+    @Schema(description = "Inventory Identifier")
+    val inventoryId: Long,
 
     @Schema(description = "Group Name")
     val name: String,
 
-    val parentGroupId: Int?
+    val parentGroupId: Long?
 )

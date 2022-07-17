@@ -17,7 +17,7 @@ class ImageService(
 
     @Transactional
     fun addImage (
-        assetId: Int,
+        assetId: Long,
         filename: String,
         mime: String,
         data: InputStream
@@ -32,14 +32,14 @@ class ImageService(
     }
 
     @Transactional
-    fun getImageInfo(imageId: Int): ImageInfo {
+    fun getImageInfo(imageId: Long): ImageInfo {
         val entity = imageDao.readImageInfo(imageId) ?: throw NotFoundException()
         return entity.toImageInfo()
     }
 
 
     @Transactional
-    fun getImageData(imageId: Int, out: OutputStream) {
+    fun getImageData(imageId: Long, out: OutputStream) {
         val input = imageDao.readImageData(imageId) ?: throw NotFoundException()
         input.use {
             it.transferTo(out)
@@ -47,7 +47,7 @@ class ImageService(
     }
 
     @Transactional
-    fun deleteImage(imageId: Int) {
+    fun deleteImage(imageId: Long) {
         val count = imageDao.deleteImage(imageId)
         if(count==0) {
             throw NotFoundException()

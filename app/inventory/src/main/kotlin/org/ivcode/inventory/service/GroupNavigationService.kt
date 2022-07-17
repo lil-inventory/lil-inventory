@@ -16,7 +16,7 @@ class GroupNavigationService(
     val groupDao: GroupDao
 ) {
 
-    @Transactional
+    @Transactional(rollbackFor = [ Throwable::class ])
     fun getRootGroupNavigation(): NavigationElement {
         val groups = groupDao.readGroupsByParent(null)
         val assets = assetDao.readAssetsByGroup(null)
@@ -30,8 +30,8 @@ class GroupNavigationService(
         )
     }
 
-    @Transactional
-    fun getGroupNavigation(groupInt: Int): NavigationElement {
+    @Transactional(rollbackFor = [ Throwable::class ])
+    fun getGroupNavigation(groupInt: Long): NavigationElement {
         val group = groupDao.readGroupPath(groupInt) ?: throw NotFoundException()
 
         val groups = groupDao.readGroupsByParent(groupInt)

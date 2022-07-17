@@ -20,7 +20,7 @@ class NavigationController(
     }
 
     @GetMapping("/{groupId}")
-    fun getGroupNavigation(@PathVariable groupId: Int): NavigationElement =
+    fun getGroupNavigation(@PathVariable groupId: Long): NavigationElement =
         groupNavigationService.getGroupNavigation(groupId)
 
 }

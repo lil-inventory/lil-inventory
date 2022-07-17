@@ -28,7 +28,7 @@ private const val DELETE_CHECKOUT =
 interface CheckoutDao {
 
     @Insert(CREATE_CHECKOUT)
-    fun createCheckout(assetId: Int, userId: Long, notes: String?): Int
+    fun createCheckout(assetId: Long, userId: Long, notes: String?): Int
 
     @Select(READ_CHECKOUT)
     @Result(property = "checkoutId", column = "checkout_id")
@@ -36,8 +36,8 @@ interface CheckoutDao {
     @Result(property = "userDisplayName", column = "display_name")
     @Result(property = "notes", column = "notes")
     @Result(property = "timestamp", column = "timestamp")
-    fun readCheckouts(assetId: Int): List<CheckoutEntity>
+    fun readCheckouts(assetId: Long): List<CheckoutEntity>
 
     @Delete(DELETE_CHECKOUT)
-    fun deleteCheckouts(checkoutId: Int): Int
+    fun deleteCheckouts(checkoutId: Long): Int
 }
