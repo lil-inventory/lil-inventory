@@ -3,10 +3,23 @@ package org.ivcode.inventory.repository
 import org.apache.ibatis.annotations.*
 import org.ivcode.inventory.repository.model.AssetEntity
 
-private const val CREATE_ASSET = """
-    INSERT INTO asset (name, asset_type, barcode, quantity, quantity_minimum, group_id)
-    VALUES (#{name}, #{type}, #{barcode}, #{quantity}, #{quantityMinimum}, #{groupId})
-"""
+/**
+ * Create a new record.
+ * Only create if the group's inventory id is the same
+ */
+private const val CREATE_ASSET = """<script>
+    INSERT INTO asset (inventory_id, name, asset_type, barcode, quantity, quantity_minimum, group_id)
+    <choose>
+        <when test="groupId != null">
+            SELECT #{inventoryId}, #{name}, #{type}, #{barcode}, #{quantity}, #{quantityMinimum}, #{groupId}
+            FROM `group` 
+            WHERE `group`.group_id=#{groupId} AND `group`.inventory_id=#{inventoryId}
+        </when>
+        <otherwise>
+            VALUES (#{inventoryId}, #{name}, #{type}, #{barcode}, #{quantity}, #{quantityMinimum}, #{groupId})        
+        </otherwise>
+    </choose>
+</script>"""
 
 private const val READ_ASSET =
     "SELECT * FROM asset WHERE asset_id=#{assetId}"
@@ -19,11 +32,32 @@ private const val READ_ASSETS_BY_GROUP = """<script>
     </choose>
 </script>"""
 
-private const val UPDATE_ASSET = """
+/**
+ * Update asset.
+ * The inventory id must equal the group's inventory id
+ */
+private const val UPDATE_ASSET = """<script>
     UPDATE asset
-    SET name=#{name}, asset_type=#{type}, barcode=#{barcode}, quantity=#{quantity}, quantity_minimum=#{quantityMinimum}, group_id=#{groupId}
-    WHERE asset_id=#{assetId}
-"""
+    <if test="groupId != null">
+        INNER JOIN `group` ON asset.group_id=`group`.group_id
+    </if>
+    SET
+        asset.inventory_id=#{inventoryId},
+        asset.name=#{name},
+        asset.asset_type=#{type},
+        asset.barcode=#{barcode},
+        asset.quantity=#{quantity},
+        asset.quantity_minimum=#{quantityMinimum},
+        asset.group_id=#{groupId}
+    <choose>
+        <when test="groupId != null">
+            WHERE asset_id=#{assetId} AND `group`.group_id=#{groupId} AND `group`.inventory_id=#{inventoryId}
+        </when>
+        <otherwise>
+            WHERE asset_id=#{assetId}
+        </otherwise>
+    </choose>
+</script>"""
 
 private const val DELETE_ASSET =
     "DELETE FROM asset WHERE asset_id=#{assetId}"
@@ -44,6 +78,7 @@ interface AssetDao {
 
     @Select(READ_ASSET)
     @Result(property = "assetId", column = "asset_id")
+    @Result(property = "inventoryId", column = "inventory_id")
     @Result(property = "name", column = "name")
     @Result(property = "type", column = "asset_type")
     @Result(property = "barcode", column = "barcode")
@@ -51,10 +86,11 @@ interface AssetDao {
     @Result(property = "quantityMinimum", column = "quantity_minimum")
     @Result(property = "quantityTotal", column = "quantity_total")
     @Result(property = "groupId", column="group_id")
-    fun readAsset(assetId: Int): AssetEntity?
+    fun readAsset(assetId: Long): AssetEntity?
 
     @Select(READ_ASSETS_BY_GROUP)
     @Result(property = "assetId", column = "asset_id")
+    @Result(property = "inventoryId", column = "inventory_id")
     @Result(property = "name", column = "name")
     @Result(property = "type", column = "asset_type")
     @Result(property = "barcode", column = "barcode")
@@ -62,14 +98,14 @@ interface AssetDao {
     @Result(property = "quantityMinimum", column = "quantity_minimum")
     @Result(property = "quantityTotal", column = "quantity_total")
     @Result(property = "groupId", column="group_id")
-    fun readAssetsByGroup(groupId: Int?): List<AssetEntity>
+    fun readAssetsByGroup(groupId: Long?): List<AssetEntity>
 
     @Update(UPDATE_ASSET)
     fun updateAsset(assetEntity: AssetEntity): Int
 
     @Delete(DELETE_ASSET)
-    fun deleteAsset(assetId: Int): Int
+    fun deleteAsset(assetId: Long): Int
 
     @Update(ADD_QUANTITY)
-    fun addQuantity(assetId: Int, quantity: Int): Int
+    fun addQuantity(assetId: Long, quantity: Int): Int
 }

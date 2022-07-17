@@ -13,25 +13,27 @@ class GroupController(
 
     @PostMapping
     fun createGroup(@RequestBody request: GroupRequest): GroupSummary = groupService.createGroup(
+        inventoryId = request.inventoryId,
         name = request.name,
         parentGroupId = request.parentGroupId
     )
 
     @GetMapping("/{groupId}")
-    fun getGroup(@PathVariable groupId: Int): GroupSummary =
+    fun getGroup(@PathVariable groupId: Long): GroupSummary =
         groupService.readGroup(groupId)
 
     @PutMapping("/{groupId}")
     fun updateGroup(
-        @PathVariable groupId: Int,
+        @PathVariable groupId: Long,
         @RequestBody request: GroupRequest
     ): GroupSummary = groupService.updateGroup(
         groupId = groupId,
+        inventoryId = request.inventoryId,
         name = request.name,
         parentGroupId =request.parentGroupId
     )
 
     @DeleteMapping("/{groupId}")
-    fun deleteGroup(@PathVariable groupId: Int) =
+    fun deleteGroup(@PathVariable groupId: Long) =
         groupService.deleteGroup(groupId)
 }

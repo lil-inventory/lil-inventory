@@ -1,7 +1,7 @@
 package org.ivcode.inventory.service.model
 
 data class AssetImageInfo (
-    val imageId: Int,
+    val imageId: Long,
     val filename: String,
     val mime: String
 )

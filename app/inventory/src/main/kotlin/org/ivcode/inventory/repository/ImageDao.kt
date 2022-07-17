@@ -33,18 +33,18 @@ interface ImageDao {
     @Result(property = "assetId", column = "asset_id")
     @Result(property = "filename", column = "filename")
     @Result(property = "mime", column = "mime")
-    fun readImageInfo(imageId: Int): ImageInfoEntity?
+    fun readImageInfo(imageId: Long): ImageInfoEntity?
 
     @Select(READ_ASSET_IMAGE_DATA)
     @Result(property = "imageId", column = "image_id")
     @Result(property = "assetId", column = "asset_id")
     @Result(property = "filename", column = "filename")
     @Result(property = "mime", column = "mime")
-    fun readAssetImageInfo(assetId: Int): List<ImageInfoEntity>
+    fun readAssetImageInfo(assetId: Long): List<ImageInfoEntity>
 
     @Select(READ_IMAGE_DATA)
-    fun readImageData(imageId: Int): InputStream?
+    fun readImageData(imageId: Long): InputStream?
 
     @Delete(DELETE_IMAGE)
-    fun deleteImage(imageId: Int): Int
+    fun deleteImage(imageId: Long): Int
 }

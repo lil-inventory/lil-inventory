@@ -18,17 +18,18 @@ class AssetController (
     private val assetService: AssetService
 ) {
     @GetMapping("/{assetId}")
-    fun getAsset(@PathVariable assetId: Int): Asset =
+    fun getAsset(@PathVariable assetId: Long): Asset =
         assetService.readAsset(assetId)
 
     @DeleteMapping("/{assetId}")
-    fun deleteNonConsumable (@PathVariable assetId: Int) =
+    fun deleteNonConsumable (@PathVariable assetId: Long) =
         assetService.deleteAsset(assetId)
 
     @PostMapping("/non-consumable")
     fun createNonConsumable (
         @RequestBody request: NonConsumableAssetRequest
     ): Asset = assetService.createNonConsumableAsset (
+        inventoryId = request.inventoryId,
         name = request.name,
         barcode = request.barcode,
         quantity = request.quantity,
@@ -37,10 +38,11 @@ class AssetController (
 
     @PutMapping("/non-consumable/{assetId}")
     fun updateNonConsumable (
-        @PathVariable assetId: Int,
+        @PathVariable assetId: Long,
         @RequestBody request: NonConsumableAssetRequest
     ): Asset = assetService.updateNonConsumableAsset(
         assetId = assetId,
+        inventoryId = request.inventoryId,
         name = request.name,
         barcode = request.barcode,
         quantity = request.quantity,
@@ -54,7 +56,7 @@ class AssetController (
     )
     fun checkOutNonConsumable (
         principal: Principal,
-        @PathVariable assetId: Int,
+        @PathVariable assetId: Long,
         @RequestBody request: CheckoutRequest?
     ): Asset = assetService.checkoutNonConsumableAsset(
         identity = (principal as InventoryAuthentication).principal,
@@ -68,10 +70,10 @@ class AssetController (
     )
     fun checkInNonConsumable (
         @PathVariable
-        assetId: Int,
+        assetId: Long,
 
         @RequestParam @Parameter(description = "Required if the user has multiple checkouts for the given asset or needs to check-in for another user")
-        checkoutId: Int?,
+        checkoutId: Long?,
 
         @RequestParam @Parameter(description = "If true, the checkout entry is removed, but the quantity is not incremented.")
         discard: Boolean = false
@@ -85,6 +87,7 @@ class AssetController (
     fun createConsumable(
         @RequestBody request: ConsumableAssetRequest
     ): Asset = assetService.createConsumableAsset(
+        inventoryId = request.inventoryId,
         name = request.name,
         barcode = request.barcode,
         quantity = request.quantity,
@@ -94,7 +97,7 @@ class AssetController (
 
     @PutMapping("/consumable/{assetId}")
     fun updateConsumable(
-        @PathVariable assetId: Int,
+        @PathVariable assetId: Long,
         @RequestBody request: ConsumableAssetRequest
     ): Asset = assetService.updateConsumableAsset(
         assetId = assetId,

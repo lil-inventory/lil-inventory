@@ -30,6 +30,7 @@ fun AssetEntity.toAsset(
     images: List<AssetImageInfo>
 ) = Asset (
     assetId = this.assetId!!,
+    inventoryId = this.inventoryId!!,
     name = this.name!!,
     type = AssetType.findAssetType(this.type!!)!!,
     barcode = this.barcode,
@@ -50,12 +51,14 @@ fun AssetEntity.toAssetSummary() = AssetSummary (
 
 fun GroupEntity.toGroupSummary() = GroupSummary(
     groupId = this.groupId!!,
+    inventoryId = this.inventoryId!!,
     name = this.name!!,
     parentGroupId = this.parentGroupId
 )
 
 fun GroupPathEntity.toGroup() = Group (
     groupId = this.groupId!!,
+    inventoryId = this.inventoryId!!,
     name = this.name!!,
     path = parsePath(this.path)
 )

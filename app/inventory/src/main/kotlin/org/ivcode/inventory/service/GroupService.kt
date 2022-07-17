@@ -13,9 +13,14 @@ class GroupService(
     val groupDao: GroupDao
 ) {
 
-    @Transactional
-    fun createGroup(name: String, parentGroupId: Int?): GroupSummary {
+    @Transactional(rollbackFor = [ Throwable::class ])
+    fun createGroup (
+        inventoryId: Long,
+        name: String,
+        parentGroupId: Long?
+    ): GroupSummary {
         val entity = GroupEntity (
+            inventoryId = inventoryId,
             name = name,
             parentGroupId = parentGroupId
         )
@@ -24,28 +29,30 @@ class GroupService(
         return entity.toGroupSummary()
     }
 
-    @Transactional
-    fun readGroup(groupId: Int): GroupSummary =
+    @Transactional(rollbackFor = [ Throwable::class ])
+    fun readGroup(groupId: Long): GroupSummary =
         groupDao.readGroup(groupId)?.toGroupSummary() ?: throw NotFoundException()
 
-    @Transactional
-    fun updateGroup(groupId: Int, name: String, parentGroupId: Int?): GroupSummary {
+    @Transactional(rollbackFor = [ Throwable::class ])
+    fun updateGroup(groupId: Long, inventoryId: Long, name: String, parentGroupId: Long?): GroupSummary {
         val entity = GroupEntity (
             groupId = groupId,
+            inventoryId = inventoryId,
             name = name,
             parentGroupId = parentGroupId
         )
 
         val count = groupDao.updateGroup(entity)
         if(count==0) {
+            // TODO count==0 could imply not found or that the inventory ids don't match
             throw NotFoundException()
         }
 
         return entity.toGroupSummary()
     }
 
-    @Transactional
-    fun deleteGroup(groupId: Int) {
+    @Transactional(rollbackFor = [ Throwable::class ])
+    fun deleteGroup(groupId: Long) {
         val count = groupDao.deleteGroup(groupId)
         if(count==0) {
             throw NotFoundException()

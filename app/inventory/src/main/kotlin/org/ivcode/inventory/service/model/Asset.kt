@@ -1,7 +1,8 @@
 package org.ivcode.inventory.service.model
 
 data class Asset (
-    val assetId: Int,
+    val assetId: Long,
+    val inventoryId: Long,
     val name: String,
     val type: AssetType,
     val barcode: String? = null,

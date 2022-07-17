@@ -9,7 +9,6 @@ import org.ivcode.inventory.repository.CheckoutDao
 import org.ivcode.inventory.repository.GroupDao
 import org.ivcode.inventory.repository.ImageDao
 import org.ivcode.inventory.repository.model.AssetEntity
-import org.ivcode.inventory.auth.services.AuthService
 import org.ivcode.inventory.auth.services.Identity
 import org.ivcode.inventory.util.*
 import org.springframework.stereotype.Service
@@ -23,13 +22,15 @@ class AssetService(
     private val imageDao: ImageDao,
 ) {
 
-    @Transactional
+    @Transactional(rollbackFor = [ Throwable::class ])
     fun createNonConsumableAsset (
+        inventoryId: Long,
         name: String,
         barcode: String? = null,
         quantity: Int,
-        groupId: Int? = null,
+        groupId: Long? = null,
     ): Asset = createAsset(AssetEntity(
+        inventoryId = inventoryId,
         name = name,
         type = AssetType.NON_CONSUMABLE.code,
         barcode = barcode,
@@ -37,14 +38,16 @@ class AssetService(
         groupId = groupId
     ))
 
-    @Transactional
+    @Transactional(rollbackFor = [ Throwable::class ])
     fun createConsumableAsset(
+        inventoryId: Long,
         name: String,
         barcode: String? = null,
         quantity: Int,
         quantityMinimum: Int,
-        groupId: Int? = null
+        groupId: Long? = null
     ): Asset = createAsset(AssetEntity(
+        inventoryId = inventoryId,
         name = name,
         type = AssetType.CONSUMABLE.code,
         barcode = barcode,
@@ -55,6 +58,13 @@ class AssetService(
 
     private fun createAsset(assetEntity: AssetEntity): Asset {
         assetDao.createAsset(assetEntity)
+
+        if(assetEntity.assetId == null) {
+            // SQL was successful, but insert failed.
+            // Cause is most likely because the group's inventory was not equal to the one given
+            throw BadRequest()
+        }
+
         return createAssetDto(assetEntity)
     }
 
@@ -91,21 +101,25 @@ class AssetService(
         )
     }
 
-    @Transactional
-    fun readAsset(assetId: Int): Asset {
+    @Transactional(rollbackFor = [ Throwable::class ])
+    fun readAsset(
+        assetId: Long
+    ): Asset {
         val asset = assetDao.readAsset(assetId) ?: throw NotFoundException()
         return createAssetDto(asset)
     }
 
-    @Transactional
+    @Transactional(rollbackFor = [ Throwable::class ])
     fun updateNonConsumableAsset(
-        assetId: Int,
+        assetId: Long,
+        inventoryId: Long,
         name: String,
         barcode: String?,
         quantity: Int,
-        groupId: Int?
+        groupId: Long?
     ): Asset = updateAsset(AssetEntity (
         assetId = assetId,
+        inventoryId = inventoryId,
         name = name,
         type = AssetType.NON_CONSUMABLE.code,
         barcode = barcode,
@@ -113,14 +127,14 @@ class AssetService(
         groupId = groupId
     ))
 
-    @Transactional
+    @Transactional(rollbackFor = [ Throwable::class ])
     fun updateConsumableAsset(
-        assetId: Int,
+        assetId: Long,
         name: String,
         barcode: String? = null,
         quantity: Int,
         quantityMinimum: Int,
-        groupId: Int? = null
+        groupId: Long? = null
     ): Asset = updateAsset(AssetEntity(
         assetId = assetId,
         name = name,
@@ -133,24 +147,25 @@ class AssetService(
     private fun updateAsset(assetEntity: AssetEntity): Asset {
         val count = assetDao.updateAsset(assetEntity)
         if (count==0) {
+            // TODO count==0 could imply not found or that the inventory ids don't match
             throw NotFoundException()
         }
 
         return createAssetDto(assetEntity)
     }
 
-    @Transactional
-    fun deleteAsset(assetId: Int) {
+    @Transactional(rollbackFor = [ Throwable::class ])
+    fun deleteAsset(assetId: Long) {
         val count = assetDao.deleteAsset(assetId)
         if(count==0) {
             throw NotFoundException()
         }
     }
 
-    @Transactional
+    @Transactional(rollbackFor = [ Throwable::class ])
     fun checkoutNonConsumableAsset (
         identity: Identity,
-        assetId: Int,
+        assetId: Long,
         notes: String?
     ): Asset {
         assetDao.addQuantity(assetId, -1)
@@ -159,10 +174,10 @@ class AssetService(
         return readAsset(assetId)
     }
 
-    @Transactional
+    @Transactional(rollbackFor = [ Throwable::class ])
     fun checkInNonConsumableAsset(
-        assetId: Int,
-        checkoutId: Int?,
+        assetId: Long,
+        checkoutId: Long?,
         discard: Boolean = false
     ): Asset {
         val checkouts = checkoutDao.readCheckouts(assetId)
@@ -180,7 +195,7 @@ class AssetService(
         val userCheckoutIds = checkoutIds
 
         // A checkout id is required if more than one of the asset is checkout by the user
-        val finalCheckoutId = checkoutId ?: if(userCheckoutIds.size==1) {
+        val finalCheckoutId: Long = checkoutId ?: if(userCheckoutIds.size==1) {
             // checkout id not found, and only one user checkout defined
             checkoutIds.first()!!
         } else if(userCheckoutIds.isEmpty()) {
