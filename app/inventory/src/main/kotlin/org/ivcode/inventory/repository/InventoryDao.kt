@@ -4,8 +4,8 @@ import org.apache.ibatis.annotations.*
 import org.ivcode.inventory.repository.model.InventoryEntity
 
 private const val CREATE_INVENTORY = """
-    INSERT INTO `inventory` (name)
-    VALUES (#{name})
+    INSERT INTO `inventory` (name, owner_user_id)
+    VALUES (#{name}, #{ownerUserId})
 """
 
 private const val READ_INVENTORIES = """
@@ -32,11 +32,13 @@ interface InventoryDao {
     @Select(READ_INVENTORIES)
     @Result(property = "inventoryId", column = "inventory_id")
     @Result(property = "name", column = "name")
+    @Result(property = "ownerUserId", column = "owner_user_id")
     fun readInventories(): List<InventoryEntity>
 
     @Select(READ_INVENTORY)
     @Result(property = "inventoryId", column = "inventory_id")
     @Result(property = "name", column = "name")
+    @Result(property = "ownerUserId", column = "owner_user_id")
     fun readInventory(inventoryId: Long): InventoryEntity?
 
     @Update(UPDATE_INVENTORY)

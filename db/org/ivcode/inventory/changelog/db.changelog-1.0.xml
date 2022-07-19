@@ -124,10 +124,60 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
             <column name="name" type="VARCHAR(127)">
                 <constraints nullable="false"/>
             </column>
+            <column name="owner_user_id" type="BIGINT(127)">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 
     <changeSet author="isaiah" id="1.0.9">
+        <createTable tableName="inventory_user">
+            <column name="inventory_user_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" unique="true"/>
+            </column>
+            <column name="inventory_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="read" type="BOOLEAN" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="write" type="BOOLEAN" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="admin" type="BOOLEAN" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet  author="isaiah"  id="1.0.10">
+        <addForeignKeyConstraint
+                baseColumnNames="inventory_id"
+                baseTableName="inventory_user"
+                constraintName="fk_inventory_user_inventory"
+                onDelete="CASCADE"
+                onUpdate="RESTRICT"
+                referencedColumnNames="inventory_id"
+                referencedTableName="inventory"
+        />
+    </changeSet>
+
+    <changeSet  author="isaiah"  id="1.0.11">
+        <addForeignKeyConstraint
+                baseColumnNames="user_id"
+                baseTableName="inventory_user"
+                constraintName="fk_inventory_user_user"
+                onDelete="CASCADE"
+                onUpdate="RESTRICT"
+                referencedColumnNames="user_id"
+                referencedTableName="user"
+        />
+    </changeSet>
+
+    <changeSet author="isaiah" id="1.0.12">
         <createTable tableName="group">
             <column name="group_id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false" unique="true"/>
@@ -142,7 +192,7 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
         </createTable>
     </changeSet>
 
-    <changeSet  author="isaiah"  id="1.0.10">
+    <changeSet  author="isaiah"  id="1.0.13">
         <addForeignKeyConstraint
                 baseColumnNames="inventory_id"
                 baseTableName="group"
@@ -154,7 +204,7 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
         />
     </changeSet>
 
-    <changeSet  author="isaiah"  id="1.0.11">
+    <changeSet  author="isaiah"  id="1.0.14">
         <addForeignKeyConstraint
                 baseColumnNames="parent_group_id"
                 baseTableName="group"
@@ -166,7 +216,7 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
         />
     </changeSet>
 
-    <changeSet author="isaiah" id="1.0.12">
+    <changeSet author="isaiah" id="1.0.15">
         <createTable tableName="asset">
             <column name="asset_id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false" unique="true"/>
@@ -189,7 +239,7 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
         </createTable>
     </changeSet>
 
-    <changeSet author="isaiah" id="1.0.13">
+    <changeSet author="isaiah" id="1.0.16">
         <sql>
             ALTER TABLE `asset`
             ADD CONSTRAINT chk_quantity CHECK (`quantity` >= 0);
@@ -200,7 +250,7 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
         </rollback>
     </changeSet>
 
-    <changeSet  author="isaiah"  id="1.0.14">
+    <changeSet  author="isaiah"  id="1.0.17">
         <addForeignKeyConstraint
                 baseColumnNames="inventory_id"
                 baseTableName="asset"
@@ -212,7 +262,7 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
         />
     </changeSet>
 
-    <changeSet  author="isaiah"  id="1.0.15">
+    <changeSet  author="isaiah"  id="1.0.18">
         <addForeignKeyConstraint
                 baseColumnNames="group_id"
                 baseTableName="asset"
@@ -224,7 +274,7 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
         />
     </changeSet>
 
-    <changeSet author="isaiah" id="1.0.16">
+    <changeSet author="isaiah" id="1.0.19">
         <createTable tableName="checkout">
             <column name="checkout_id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false" unique="true"/>
@@ -244,7 +294,7 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
         </createTable>
     </changeSet>
 
-    <changeSet  author="isaiah"  id="1.0.17">
+    <changeSet  author="isaiah"  id="1.0.20">
         <addForeignKeyConstraint
                 baseColumnNames="asset_id"
                 baseTableName="checkout"
@@ -256,7 +306,7 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
         />
     </changeSet>
 
-    <changeSet author="isaiah" id="1.0.18">
+    <changeSet author="isaiah" id="1.0.21">
         <addForeignKeyConstraint
                 baseColumnNames="user_id"
                 baseTableName="checkout"
@@ -268,7 +318,7 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
         />
     </changeSet>
 
-    <changeSet author="isaiah" id="1.0.19">
+    <changeSet author="isaiah" id="1.0.22">
         <createTable tableName="image">
             <column name="image_id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false" unique="true"/>
@@ -288,7 +338,7 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
         </createTable>
     </changeSet>
 
-    <changeSet author="isaiah" id="1.0.20">
+    <changeSet author="isaiah" id="1.0.23">
         <addForeignKeyConstraint
                 baseColumnNames="asset_id"
                 baseTableName="image"
