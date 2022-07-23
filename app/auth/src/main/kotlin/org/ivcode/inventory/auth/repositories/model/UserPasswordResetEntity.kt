@@ -2,7 +2,7 @@ package org.ivcode.inventory.auth.repositories.model
 
 import java.util.*
 
-internal data class UserPasswordResetEntity (
+data class UserPasswordResetEntity (
     val userPasswordResetId: Long? = null,
     val userId: Long,
     val salt: String,

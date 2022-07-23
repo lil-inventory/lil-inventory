@@ -9,18 +9,23 @@ import org.springframework.web.bind.annotation.RestController
 
 
 @RestController
-@RequestMapping("/navigation")
+@RequestMapping("/inventory/{inventoryId}/navigation")
 class NavigationController(
     val groupNavigationService: GroupNavigationService
 ) {
 
     @GetMapping("/")
-    fun getRoot(): NavigationElement {
-        return groupNavigationService.getRootGroupNavigation()
+    fun getRoot(
+        @PathVariable inventoryId: Long
+    ): NavigationElement {
+        return groupNavigationService.getRootGroupNavigation(inventoryId)
     }
 
     @GetMapping("/{groupId}")
-    fun getGroupNavigation(@PathVariable groupId: Long): NavigationElement =
-        groupNavigationService.getGroupNavigation(groupId)
+    fun getGroupNavigation(
+        @PathVariable inventoryId: Long,
+        @PathVariable groupId: Long
+    ): NavigationElement =
+        groupNavigationService.getGroupNavigation(inventoryId,groupId)
 
 }

@@ -19,7 +19,7 @@ class AssetService(
     private val assetDao: AssetDao,
     private val checkoutDao: CheckoutDao,
     private val groupDao: GroupDao,
-    private val imageDao: ImageDao,
+    private val imageDao: ImageDao
 ) {
 
     @Transactional(rollbackFor = [ Throwable::class ])
@@ -103,9 +103,10 @@ class AssetService(
 
     @Transactional(rollbackFor = [ Throwable::class ])
     fun readAsset(
+        inventoryId: Long,
         assetId: Long
     ): Asset {
-        val asset = assetDao.readAsset(assetId) ?: throw NotFoundException()
+        val asset = assetDao.readAsset(inventoryId, assetId) ?: throw NotFoundException()
         return createAssetDto(asset)
     }
 
@@ -155,8 +156,11 @@ class AssetService(
     }
 
     @Transactional(rollbackFor = [ Throwable::class ])
-    fun deleteAsset(assetId: Long) {
-        val count = assetDao.deleteAsset(assetId)
+    fun deleteAsset(
+        inventoryId: Long,
+        assetId: Long
+    ) {
+        val count = assetDao.deleteAsset(inventoryId, assetId)
         if(count==0) {
             throw NotFoundException()
         }
@@ -165,21 +169,21 @@ class AssetService(
     @Transactional(rollbackFor = [ Throwable::class ])
     fun checkoutNonConsumableAsset (
         identity: Identity,
+        inventoryId: Long,
         assetId: Long,
         notes: String?
-    ): Asset {
-        assetDao.addQuantity(assetId, -1)
+    ) {
+        assetDao.addQuantity(inventoryId, assetId, -1)
         checkoutDao.createCheckout(assetId, identity.userId, notes)
-
-        return readAsset(assetId)
     }
 
     @Transactional(rollbackFor = [ Throwable::class ])
     fun checkInNonConsumableAsset(
         assetId: Long,
+        inventoryId: Long,
         checkoutId: Long?,
         discard: Boolean = false
-    ): Asset {
+    ) {
         val checkouts = checkoutDao.readCheckouts(assetId)
 
         // Make sure there are checkouts to delete
@@ -212,10 +216,8 @@ class AssetService(
         }
 
         if(!discard) {
-            assetDao.addQuantity(assetId, 1)
+            assetDao.addQuantity(inventoryId, assetId, 1)
         }
         checkoutDao.deleteCheckouts(finalCheckoutId)
-
-        return readAsset(assetId)
     }
 }

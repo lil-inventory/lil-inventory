@@ -6,24 +6,31 @@ import org.ivcode.inventory.service.GroupService
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/group")
+@RequestMapping("/inventory/{inventoryId}/group")
 class GroupController(
     val groupService: GroupService
 ) {
 
     @PostMapping
-    fun createGroup(@RequestBody request: GroupRequest): GroupSummary = groupService.createGroup(
+    fun createGroup(
+        @PathVariable inventoryId: Long,
+        @RequestBody request: GroupRequest
+    ): GroupSummary = groupService.createGroup(
         inventoryId = request.inventoryId,
         name = request.name,
         parentGroupId = request.parentGroupId
     )
 
     @GetMapping("/{groupId}")
-    fun getGroup(@PathVariable groupId: Long): GroupSummary =
+    fun getGroup(
+        @PathVariable inventoryId: Long,
+        @PathVariable groupId: Long
+    ): GroupSummary =
         groupService.readGroup(groupId)
 
     @PutMapping("/{groupId}")
     fun updateGroup(
+        @PathVariable inventoryId: Long,
         @PathVariable groupId: Long,
         @RequestBody request: GroupRequest
     ): GroupSummary = groupService.updateGroup(
@@ -34,6 +41,9 @@ class GroupController(
     )
 
     @DeleteMapping("/{groupId}")
-    fun deleteGroup(@PathVariable groupId: Long) =
+    fun deleteGroup(
+        @PathVariable inventoryId: Long,
+        @PathVariable groupId: Long
+    ) =
         groupService.deleteGroup(groupId)
 }

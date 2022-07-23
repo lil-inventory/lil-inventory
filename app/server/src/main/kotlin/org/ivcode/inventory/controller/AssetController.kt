@@ -6,48 +6,73 @@ import org.ivcode.inventory.auth.security.InventoryAuthentication
 import org.ivcode.inventory.controller.model.CheckoutRequest
 import org.ivcode.inventory.controller.model.ConsumableAssetRequest
 import org.ivcode.inventory.controller.model.NonConsumableAssetRequest
+import org.ivcode.inventory.security.InventoryAuth
 import org.ivcode.inventory.service.model.Asset
-import org.ivcode.inventory.service.model.AssetSummary
 import org.ivcode.inventory.service.AssetService
 import org.springframework.web.bind.annotation.*
 import java.security.Principal
 
 @RestController
-@RequestMapping("/assets")
+@RequestMapping("/inventory/{inventoryId}/assets")
 class AssetController (
-    private val assetService: AssetService
+    private val assetService: AssetService,
+    private val inventoryAuth: InventoryAuth
 ) {
     @GetMapping("/{assetId}")
-    fun getAsset(@PathVariable assetId: Long): Asset =
-        assetService.readAsset(assetId)
+    fun getAsset(
+        @PathVariable inventoryId: Long,
+        @PathVariable assetId: Long
+    ): Asset {
+        inventoryAuth.hasRead(inventoryId)
+        return assetService.readAsset(
+            inventoryId = inventoryId,
+            assetId = assetId
+        )
+    }
 
     @DeleteMapping("/{assetId}")
-    fun deleteNonConsumable (@PathVariable assetId: Long) =
-        assetService.deleteAsset(assetId)
+    fun deleteNonConsumable (
+        @PathVariable inventoryId: Long,
+        @PathVariable assetId: Long
+    ) {
+        inventoryAuth.hasWrite(inventoryId)
+        assetService.deleteAsset(
+            inventoryId = inventoryId,
+            assetId = assetId
+        )
+    }
 
     @PostMapping("/non-consumable")
     fun createNonConsumable (
+        @PathVariable inventoryId: Long,
         @RequestBody request: NonConsumableAssetRequest
-    ): Asset = assetService.createNonConsumableAsset (
-        inventoryId = request.inventoryId,
-        name = request.name,
-        barcode = request.barcode,
-        quantity = request.quantity,
-        groupId = request.groupId
-    )
+    ): Asset {
+        inventoryAuth.hasWrite(inventoryId)
+        return assetService.createNonConsumableAsset (
+            inventoryId = inventoryId,
+            name = request.name,
+            barcode = request.barcode,
+            quantity = request.quantity,
+            groupId = request.groupId
+        )
+    }
 
     @PutMapping("/non-consumable/{assetId}")
     fun updateNonConsumable (
+        @PathVariable inventoryId: Long,
         @PathVariable assetId: Long,
         @RequestBody request: NonConsumableAssetRequest
-    ): Asset = assetService.updateNonConsumableAsset(
-        assetId = assetId,
-        inventoryId = request.inventoryId,
-        name = request.name,
-        barcode = request.barcode,
-        quantity = request.quantity,
-        groupId = request.groupId
-    )
+    ): Asset {
+        inventoryAuth.hasWrite(inventoryId)
+        return assetService.updateNonConsumableAsset(
+            assetId = assetId,
+            inventoryId = inventoryId,
+            name = request.name,
+            barcode = request.barcode,
+            quantity = request.quantity,
+            groupId = request.groupId
+        )
+    }
 
 
     @PostMapping("/non-consumable/{assetId}/checkout")
@@ -56,19 +81,25 @@ class AssetController (
     )
     fun checkOutNonConsumable (
         principal: Principal,
+        @PathVariable inventoryId: Long,
         @PathVariable assetId: Long,
         @RequestBody request: CheckoutRequest?
-    ): Asset = assetService.checkoutNonConsumableAsset(
-        identity = (principal as InventoryAuthentication).principal,
-        assetId = assetId,
-        notes = request?.notes
-    )
+    ) {
+        inventoryAuth.hasWrite(inventoryId)
+        assetService.checkoutNonConsumableAsset(
+            identity = (principal as InventoryAuthentication).principal,
+            inventoryId = inventoryId,
+            assetId = assetId,
+            notes = request?.notes
+        )
+    }
 
     @PostMapping("/non-consumable/{assetId}/check-in")
     @Operation(
         description = "Returns a checked out asset. This is remove the checkout entry from the asset and increment the available quantity by 1"
     )
     fun checkInNonConsumable (
+        @PathVariable inventoryId: Long,
         @PathVariable
         assetId: Long,
 
@@ -77,42 +108,46 @@ class AssetController (
 
         @RequestParam @Parameter(description = "If true, the checkout entry is removed, but the quantity is not incremented.")
         discard: Boolean = false
-    ): Asset = assetService.checkInNonConsumableAsset (
-        assetId = assetId,
-        checkoutId = checkoutId,
-        discard = discard
-    )
+    ) {
+        inventoryAuth.hasWrite(inventoryId)
+        assetService.checkInNonConsumableAsset (
+            inventoryId = inventoryId,
+            assetId = assetId,
+            checkoutId = checkoutId,
+            discard = discard
+        )
+    }
 
     @PostMapping("/consumable")
     fun createConsumable(
+        @PathVariable inventoryId: Long,
         @RequestBody request: ConsumableAssetRequest
-    ): Asset = assetService.createConsumableAsset(
-        inventoryId = request.inventoryId,
-        name = request.name,
-        barcode = request.barcode,
-        quantity = request.quantity,
-        quantityMinimum = request.quantityMinimum,
-        groupId = request.groupId
-    )
+    ): Asset {
+        inventoryAuth.hasWrite(inventoryId)
+        return assetService.createConsumableAsset(
+            inventoryId = inventoryId,
+            name = request.name,
+            barcode = request.barcode,
+            quantity = request.quantity,
+            quantityMinimum = request.quantityMinimum,
+            groupId = request.groupId
+        )
+    }
 
     @PutMapping("/consumable/{assetId}")
     fun updateConsumable(
+        @PathVariable inventoryId: Long,
         @PathVariable assetId: Long,
         @RequestBody request: ConsumableAssetRequest
-    ): Asset = assetService.updateConsumableAsset(
-        assetId = assetId,
-        name = request.name,
-        barcode = request.barcode,
-        quantity = request.quantity,
-        quantityMinimum = request.quantityMinimum,
-        groupId = request.groupId
-    )
-
-    @GetMapping("/consumable/restock-list")
-    @Operation(
-        description = "Returns the consumable assets having a quantity less than the specified minimum quantity"
-    )
-    fun getRestocks(): List<AssetSummary> {
-        return TODO()
+    ): Asset {
+        inventoryAuth.hasWrite(inventoryId)
+        return assetService.updateConsumableAsset(
+            assetId = assetId,
+            name = request.name,
+            barcode = request.barcode,
+            quantity = request.quantity,
+            quantityMinimum = request.quantityMinimum,
+            groupId = request.groupId
+        )
     }
 }

@@ -22,7 +22,7 @@ private const val DELETE_PASSWORD_RESET = """
 """
 
 @Mapper
-internal interface UserPasswordResetDao {
+interface UserPasswordResetDao {
 
     @Insert(CREATE_PASSWORD_RESET)
     @Options(useGeneratedKeys=true, keyProperty="userPasswordResetId")
