@@ -22,10 +22,15 @@ private const val CREATE_ASSET = """<script>
 </script>"""
 
 private const val READ_ASSET =
-    "SELECT * FROM asset WHERE asset_id=#{assetId}"
+    "SELECT * FROM asset WHERE inventory_id=#{inventoryId} AND asset_id=#{assetId}"
 
 private const val READ_ASSETS_BY_GROUP = """<script>
-    SELECT * FROM asset WHERE 
+    SELECT
+        *
+    FROM
+        asset
+    WHERE
+        inventory_id=#{inventoryId} AND 
     <choose>
         <when test="groupId != null">group_id=#{groupId}</when>
         <otherwise>group_id IS NULL</otherwise>
@@ -51,21 +56,21 @@ private const val UPDATE_ASSET = """<script>
         asset.group_id=#{groupId}
     <choose>
         <when test="groupId != null">
-            WHERE asset_id=#{assetId} AND `group`.group_id=#{groupId} AND `group`.inventory_id=#{inventoryId}
+            WHERE inventory_id=#{inventoryId} AND asset_id=#{assetId} AND `group`.group_id=#{groupId} AND `group`.inventory_id=#{inventoryId}
         </when>
         <otherwise>
-            WHERE asset_id=#{assetId}
+            WHERE inventory_id=#{inventoryId} AND asset_id=#{assetId}
         </otherwise>
     </choose>
 </script>"""
 
 private const val DELETE_ASSET =
-    "DELETE FROM asset WHERE asset_id=#{assetId}"
+    "DELETE FROM asset WHERE inventory_id=#{inventoryId} AND asset_id=#{assetId}"
 
 private const val ADD_QUANTITY = """
     UPDATE asset
     SET quantity = quantity + #{quantity}
-    WHERE asset_id=#{assetId}
+    WHERE inventory_id=#{inventoryId} AND asset_id=#{assetId}
 """
 
 
@@ -86,7 +91,7 @@ interface AssetDao {
     @Result(property = "quantityMinimum", column = "quantity_minimum")
     @Result(property = "quantityTotal", column = "quantity_total")
     @Result(property = "groupId", column="group_id")
-    fun readAsset(assetId: Long): AssetEntity?
+    fun readAsset(inventoryId: Long, assetId: Long): AssetEntity?
 
     @Select(READ_ASSETS_BY_GROUP)
     @Result(property = "assetId", column = "asset_id")
@@ -98,14 +103,14 @@ interface AssetDao {
     @Result(property = "quantityMinimum", column = "quantity_minimum")
     @Result(property = "quantityTotal", column = "quantity_total")
     @Result(property = "groupId", column="group_id")
-    fun readAssetsByGroup(groupId: Long?): List<AssetEntity>
+    fun readAssetsByGroup(inventoryId: Long, groupId: Long?): List<AssetEntity>
 
     @Update(UPDATE_ASSET)
     fun updateAsset(assetEntity: AssetEntity): Int
 
     @Delete(DELETE_ASSET)
-    fun deleteAsset(assetId: Long): Int
+    fun deleteAsset(inventoryId: Long, assetId: Long): Int
 
     @Update(ADD_QUANTITY)
-    fun addQuantity(assetId: Long, quantity: Int): Int
+    fun addQuantity(inventoryId: Long, assetId: Long, quantity: Int): Int
 }

@@ -80,6 +80,7 @@ class AuthService(
         }
     }
 
+    @Transactional(rollbackFor = [ Throwable::class ])
     fun sendResetPasswordEmail(email: String) {
         val user = userDao.readUserByEmail(email)
         if(user?.emailVerified != true) {

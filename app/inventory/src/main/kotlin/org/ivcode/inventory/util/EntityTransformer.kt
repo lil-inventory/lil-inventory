@@ -85,7 +85,8 @@ fun ImageInfoEntity.toAssetImageInfo() = AssetImageInfo (
 
 fun InventoryEntity.toInventory() = Inventory (
     inventoryId = this.inventoryId!!,
-    name = this.name
+    name = this.name,
+    owner = this.ownerUserId
 )
 
 fun parsePath(path: String?) =

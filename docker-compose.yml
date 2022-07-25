@@ -23,7 +23,7 @@ services:
     links:
       - db
     volumes:
-      - ./app/inventory/src/main/db/org/ivcode/inventory/changelog:/liquibase/changelog:ro
+      - ./db/org/ivcode/inventory/changelog:/liquibase/changelog:ro
     command:
       --url=jdbc:mysql://db:3306/inventory?allowPublicKeyRetrieval=true&autoReconnect=true&maxReconnects=10
       --changeLogFile=db.changelog-root.xml

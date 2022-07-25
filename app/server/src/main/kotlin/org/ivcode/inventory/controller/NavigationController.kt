@@ -1,6 +1,8 @@
 package org.ivcode.inventory.controller
 
+import org.ivcode.inventory.security.InventoryAuth
 import org.ivcode.inventory.service.GroupNavigationService
+import org.ivcode.inventory.service.model.InventorySecurity
 import org.ivcode.inventory.service.model.NavigationElement
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -9,18 +11,26 @@ import org.springframework.web.bind.annotation.RestController
 
 
 @RestController
-@RequestMapping("/navigation")
+@RequestMapping("/inventory/{inventoryId}/navigation")
 class NavigationController(
-    val groupNavigationService: GroupNavigationService
+    val groupNavigationService: GroupNavigationService,
+    val inventoryAuth: InventoryAuth
 ) {
 
     @GetMapping("/")
-    fun getRoot(): NavigationElement {
-        return groupNavigationService.getRootGroupNavigation()
+    fun getRoot(
+        @PathVariable inventoryId: Long
+    ): NavigationElement {
+        inventoryAuth.hasRead(inventoryId)
+        return groupNavigationService.getRootGroupNavigation(inventoryId)
     }
 
     @GetMapping("/{groupId}")
-    fun getGroupNavigation(@PathVariable groupId: Long): NavigationElement =
-        groupNavigationService.getGroupNavigation(groupId)
-
+    fun getGroupNavigation(
+        @PathVariable inventoryId: Long,
+        @PathVariable groupId: Long
+    ): NavigationElement {
+        inventoryAuth.hasRead(inventoryId)
+        return groupNavigationService.getGroupNavigation(inventoryId,groupId)
+    }
 }
