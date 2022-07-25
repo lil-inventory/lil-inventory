@@ -27,7 +27,9 @@ class InventoryController(
     }
 
     @GetMapping
-    fun getInventories(): List<Inventory> = inventoryService.getInventories()
+    fun getInventories(
+        auth: InventoryAuthentication
+    ): List<Inventory> = inventoryService.getInventories(auth.principal)
 
     @PostMapping("/permissions")
     fun setInventoryPermissions(

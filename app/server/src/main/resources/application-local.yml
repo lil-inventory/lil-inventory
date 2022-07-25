@@ -1,7 +1,7 @@
 # Profile for local development and testing. See docker-compose.yml for environment setup
 
 application:
-  title: Inventory
+  title: Lil-Inventory
   version: 0.00
   formatted-version: (v${application.version})
   home-path: /swagger-ui/index.html

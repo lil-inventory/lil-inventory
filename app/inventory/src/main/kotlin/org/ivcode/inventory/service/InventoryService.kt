@@ -1,5 +1,6 @@
 package org.ivcode.inventory.service
 
+import org.ivcode.inventory.auth.services.Identity
 import org.ivcode.inventory.repository.InventoryDao
 import org.ivcode.inventory.repository.model.InventoryEntity
 import org.ivcode.inventory.service.model.Inventory
@@ -27,7 +28,7 @@ class InventoryService(
     }
 
     @Transactional(rollbackFor = [ Throwable::class ])
-    fun getInventories(): List<Inventory> {
-        return inventoryDao.readInventories()?.map { it.toInventory() }
+    fun getInventories(identity: Identity): List<Inventory> {
+        return inventoryDao.readInventories(identity.userId)?.map { it.toInventory() }
     }
 }

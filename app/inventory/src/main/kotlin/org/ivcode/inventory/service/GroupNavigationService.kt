@@ -18,7 +18,7 @@ class GroupNavigationService(
 
     @Transactional(rollbackFor = [ Throwable::class ])
     fun getRootGroupNavigation(inventoryId: Long): NavigationElement {
-        val groups = groupDao.readGroupsByParent(null)
+        val groups = groupDao.readGroupsByParent(inventoryId, null)
         val assets = assetDao.readAssetsByGroup(inventoryId, null)
 
         return NavigationElement(
@@ -35,9 +35,9 @@ class GroupNavigationService(
         inventoryId: Long,
         groupInt: Long
     ): NavigationElement {
-        val group = groupDao.readGroupPath(groupInt) ?: throw NotFoundException()
+        val group = groupDao.readGroupPath(inventoryId, groupInt) ?: throw NotFoundException()
 
-        val groups = groupDao.readGroupsByParent(groupInt)
+        val groups = groupDao.readGroupsByParent(inventoryId, groupInt)
         val assets = assetDao.readAssetsByGroup(inventoryId, groupInt)
 
         return NavigationElement(

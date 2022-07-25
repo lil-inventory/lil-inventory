@@ -72,7 +72,7 @@ class AssetService(
         val assetId = assetEntity.assetId!!
 
         val group = if (assetEntity.groupId!=null) {
-            groupDao.readGroupPath(assetEntity.groupId)?.toGroup()
+            groupDao.readGroupPath(assetEntity.inventoryId!!, assetEntity.groupId)?.toGroup()
         } else {
             null
         }

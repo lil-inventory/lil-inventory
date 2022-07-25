@@ -8,7 +8,7 @@ data class InventorySecurity (
     private val owner: Boolean
 ) {
     fun isRead() = read || admin || owner
-    fun isWrite() = read || admin || owner
+    fun isWrite() = write || admin || owner
     fun isAdmin() = admin || owner
     fun isOwner() = owner
 }

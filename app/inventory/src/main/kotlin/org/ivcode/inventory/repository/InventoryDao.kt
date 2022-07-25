@@ -9,7 +9,12 @@ private const val CREATE_INVENTORY = """
 """
 
 private const val READ_INVENTORIES = """
-    SELECT * FROM `inventory`
+    SELECT
+        i.*
+    FROM
+        `inventory` AS i LEFT JOIN `inventory_user` AS iu ON i.inventory_id=iu.inventory_id
+    WHERE
+        i.owner_user_id=#{userId} OR iu.user_id=#{userId} 
 """
 
 private const val READ_INVENTORY = """
@@ -33,7 +38,7 @@ interface InventoryDao {
     @Result(property = "inventoryId", column = "inventory_id")
     @Result(property = "name", column = "name")
     @Result(property = "ownerUserId", column = "owner_user_id")
-    fun readInventories(): List<InventoryEntity>
+    fun readInventories(userId: Long): List<InventoryEntity>
 
     @Select(READ_INVENTORY)
     @Result(property = "inventoryId", column = "inventory_id")

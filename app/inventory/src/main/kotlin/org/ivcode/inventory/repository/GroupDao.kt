@@ -23,10 +23,10 @@ private const val CREATE_GROUP = """<script>
 </script>"""
 
 private const val READ_GROUP =
-    "SELECT * FROM `group` WHERE group_id=#{groupId}"
+    "SELECT * FROM `group` WHERE inventory_id=#{inventoryId} AND group_id=#{groupId}"
 
 private const val READ_GROUPS_BY_PARENT = """<script>
-    SELECT * FROM `group` WHERE 
+    SELECT * FROM `group` WHERE inventory_id=#{inventoryId} AND
     <choose>
         <when test="parentGroupId != null">parent_group_id = #{parentGroupId}</when>
         <otherwise>parent_group_id IS NULL</otherwise>
@@ -70,13 +70,13 @@ private const val UPDATE_GROUP = """<script>
             WHERE `group`.group_id=#{groupId} AND g2.group_id=#{parentGroupId} AND g2.inventory_id=#{inventoryId}
         </when>
         <otherwise>
-            WHERE group_id=#{groupId}
+            WHERE inventory_id=#{inventoryId} AND group_id=#{groupId}
         </otherwise>
     </choose>
 </script>"""
 
 private const val DELETE_GROUP =
-    "DELETE FROM `group` WHERE group_id=#{groupId} "
+    "DELETE FROM `group` WHERE inventory_id=#{inventoryId} AND group_id=#{groupId} "
 
 @Mapper
 interface GroupDao {
@@ -90,14 +90,14 @@ interface GroupDao {
     @Result(property = "inventoryId", column = "inventory_id")
     @Result(property = "parentGroupId", column = "parent_group_id")
     @Result(property = "name", column = "name")
-    fun readGroup(groupId: Long): GroupEntity?
+    fun readGroup(inventoryId: Long, groupId: Long): GroupEntity?
 
     @Select(READ_GROUPS_BY_PARENT)
     @Result(property = "groupId", column = "group_id")
     @Result(property = "inventoryId", column = "inventory_id")
     @Result(property = "parentGroupId", column = "parent_group_id")
     @Result(property = "name", column = "name")
-    fun readGroupsByParent(parentGroupId: Long?): List<GroupEntity>
+    fun readGroupsByParent(inventoryId: Long, parentGroupId: Long?): List<GroupEntity>
 
     @Select(READ_GROUP_AND_PATH)
     @Result(property = "groupId", column = "group_id")
@@ -105,11 +105,11 @@ interface GroupDao {
     @Result(property = "parentGroupId", column = "parent_group_id")
     @Result(property = "name", column = "name")
     @Result(property = "path", column = "path")
-    fun readGroupPath(groupId: Long): GroupPathEntity?
+    fun readGroupPath(inventoryId: Long, groupId: Long): GroupPathEntity?
 
     @Update(UPDATE_GROUP)
-    fun updateGroup(groupEntity: GroupEntity): Int
+    fun updateGroup(inventoryId: Long, groupId: Long, parentGroupId: Long?, name: String): Int
 
     @Delete(DELETE_GROUP)
-    fun deleteGroup(groupId: Long): Int
+    fun deleteGroup(inventoryId: Long, groupId: Long): Int
 }
