@@ -19,7 +19,7 @@ class InventoryController(
         @RequestParam name: String,
         auth: InventoryAuthentication
     ): Inventory {
-        val i = auth.principal
+        val i = auth.principal.identity
         return inventoryService.createInventory (
             name = name,
             ownerUserId = i.userId
@@ -29,7 +29,7 @@ class InventoryController(
     @GetMapping
     fun getInventories(
         auth: InventoryAuthentication
-    ): List<Inventory> = inventoryService.getInventories(auth.principal)
+    ): List<Inventory> = inventoryService.getInventories(auth.principal.identity)
 
     @PostMapping("/permissions")
     fun setInventoryPermissions(
@@ -40,7 +40,7 @@ class InventoryController(
         @RequestParam admin: Boolean,
         auth: InventoryAuthentication,
     ) = inventorySecurityService.setPermissions(
-        identity = auth.principal,
+        identity = auth.principal.identity,
         inventoryId = inventoryId,
         email = userEmail,
         read = read,
@@ -54,7 +54,7 @@ class InventoryController(
         @RequestParam userEmail: String,
         auth: InventoryAuthentication,
     ) = inventorySecurityService.deletePermissions(
-        identity = auth.principal,
+        identity = auth.principal.identity,
         inventoryId = inventoryId,
         email = userEmail
     )

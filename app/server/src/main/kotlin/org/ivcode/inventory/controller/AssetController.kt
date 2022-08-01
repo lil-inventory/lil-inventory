@@ -3,6 +3,7 @@ package org.ivcode.inventory.controller
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import org.ivcode.inventory.auth.security.InventoryAuthentication
+import org.ivcode.inventory.auth.security.InventoryPrincipal
 import org.ivcode.inventory.controller.model.CheckoutRequest
 import org.ivcode.inventory.controller.model.ConsumableAssetRequest
 import org.ivcode.inventory.controller.model.NonConsumableAssetRequest
@@ -80,14 +81,14 @@ class AssetController (
         description = "Checkout an asset. This will add a checkout entry to the asset and decrement the available quantity by 1"
     )
     fun checkOutNonConsumable (
-        principal: Principal,
+        authentication: InventoryAuthentication,
         @PathVariable inventoryId: Long,
         @PathVariable assetId: Long,
         @RequestBody request: CheckoutRequest?
     ) {
         inventoryAuth.hasWrite(inventoryId)
         assetService.checkoutNonConsumableAsset(
-            identity = (principal as InventoryAuthentication).principal,
+            identity = authentication.principal.identity,
             inventoryId = inventoryId,
             assetId = assetId,
             notes = request?.notes

@@ -1,6 +1,7 @@
 package org.ivcode.inventory.auth.services
 
 import io.jsonwebtoken.JwtException
+import org.ivcode.inventory.auth.repositories.AccountDao
 import org.ivcode.inventory.auth.repositories.UserDao
 import org.ivcode.inventory.auth.repositories.UserEmailVerificationDao
 import org.ivcode.inventory.auth.repositories.UserSessionDao
@@ -25,12 +26,13 @@ class AuthService(
     private val userDao: UserDao,
     private val userSessionDao: UserSessionDao,
     private val emailVerificationDao: UserEmailVerificationDao,
+    private val accountDao: AccountDao,
     private val authJwtService: AuthJwtService,
     private val emailService: EmailService
 ) {
 
     @Transactional(rollbackFor = [ Throwable::class ])
-    fun createUser (
+    fun createSuperAdmin (
         email: String,
         displayName: String,
         password: String
@@ -43,6 +45,7 @@ class AuthService(
             email = email,
             emailVerified = false,
             displayName = displayName,
+            superAdmin = true,
             salt = salt,
             password = hash
         )
@@ -127,9 +130,21 @@ class AuthService(
 
         val userEntity = userDao.readUser(userSessionEntity.userId) ?: throw UnauthorizedException()
         val identity = userEntity.toIdentity()
+        val account = if(userEntity.accountId!=null) {
+            accountDao.readAccount(userEntity.accountId)?.toAccount()
+        } else {
+            null
+        }
+        val auths = listOfNotNull(
+            if(userEntity.superAdmin==true) GrantedAuthorities.SUPER_ADMIN else null,
+            if(userEntity.accountAdmin==true) GrantedAuthorities.ACCOUNT_ADMIN else null
+        )
 
-        val tokenInfo = authJwtService.createTokens(
+        val tokenInfo = authJwtService.
+        createTokens(
             identity = identity,
+            account = account,
+            authorities = auths,
             sessionId = UUID.fromString(userSessionEntity.userSessionId))
 
         userSessionDao.updateUserSession (
@@ -153,7 +168,21 @@ class AuthService(
         }
 
         val identity = userEntity.toIdentity()
-        val tokenInfo = authJwtService.createTokens(identity)
+        val account = if(userEntity.accountId!=null) {
+            accountDao.readAccount(userEntity.accountId)?.toAccount()
+        } else {
+            null
+        }
+        val auths = listOfNotNull(
+            if(userEntity.superAdmin==true) GrantedAuthorities.SUPER_ADMIN else null,
+            if(userEntity.accountAdmin==true) GrantedAuthorities.ACCOUNT_ADMIN else null
+        )
+
+        val tokenInfo = authJwtService.createTokens(
+            identity = identity,
+            account = account,
+            authorities = auths
+        )
 
         val entity = UserSessionEntity(
             userSessionId = tokenInfo.refresh.sessionId.toString(),

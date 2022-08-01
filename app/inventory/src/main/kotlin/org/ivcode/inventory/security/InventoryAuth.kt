@@ -23,7 +23,7 @@ class InventoryAuth (
         owner: Boolean=false
     ) {
         val auth = (SecurityContextHolder.getContext().authentication ?: throw ForbiddenException()) as InventoryAuthentication
-        val inventorySecurity = inventorySecurityService.getPermissions(auth.principal, inventoryId)
+        val inventorySecurity = inventorySecurityService.getPermissions(auth.principal.identity, inventoryId)
 
         if(read && !inventorySecurity.isRead()) {
             throw ForbiddenException()
