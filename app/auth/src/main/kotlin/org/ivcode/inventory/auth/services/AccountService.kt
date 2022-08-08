@@ -10,7 +10,7 @@ import org.ivcode.inventory.auth.services.model.User
 import org.ivcode.inventory.auth.utils.createRandomString
 import org.ivcode.inventory.auth.utils.hashPassword
 import org.ivcode.inventory.auth.utils.toUser
-import org.ivcode.inventory.common.exception.BadRequest
+import org.ivcode.inventory.common.exception.BadRequestException
 import org.ivcode.inventory.common.exception.ForbiddenException
 import org.ivcode.inventory.common.exception.NotFoundException
 import org.ivcode.inventory.email.service.EmailService
@@ -130,7 +130,7 @@ class AccountService(
     ) {
         if(currentUserId==deleteUserId) {
             // An account admin cannot delete their own account
-            throw BadRequest()
+            throw BadRequestException()
         }
 
         val user = userDao.readUser(deleteUserId) ?: throw NotFoundException()

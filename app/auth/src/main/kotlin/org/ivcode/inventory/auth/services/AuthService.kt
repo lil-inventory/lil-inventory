@@ -13,7 +13,7 @@ import org.ivcode.inventory.auth.utils.*
 import org.ivcode.inventory.auth.utils.hashPassword
 import org.ivcode.inventory.auth.utils.toAccessToken
 import org.ivcode.inventory.auth.utils.toIdentity
-import org.ivcode.inventory.common.exception.BadRequest
+import org.ivcode.inventory.common.exception.BadRequestException
 import org.ivcode.inventory.common.exception.UnauthorizedException
 import org.ivcode.inventory.email.service.EmailService
 import org.ivcode.inventory.email.service.model.SendEmailVerificationRequest
@@ -87,7 +87,7 @@ class AuthService(
     fun sendResetPasswordEmail(email: String) {
         val user = userDao.readUserByEmail(email)
         if(user?.emailVerified != true) {
-            throw BadRequest("email not verified")
+            throw BadRequestException("email not verified")
         }
 
         TODO()
@@ -103,13 +103,13 @@ class AuthService(
         return when(grantType) {
             "password" -> login(username, password)
             "refresh_token" -> refresh(refreshToken)
-            else -> throw BadRequest()
+            else -> throw BadRequestException()
         }
     }
 
     private fun refresh(refreshToken: String?): AccessToken {
         if(refreshToken==null) {
-            throw BadRequest()
+            throw BadRequestException()
         }
 
         val claims = try {
@@ -158,7 +158,7 @@ class AuthService(
 
     private fun login(email: String?, password: String?): AccessToken {
         if(email==null || password==null) {
-            throw BadRequest()
+            throw BadRequestException()
         }
 
         val userEntity = userDao.readUserByEmail(email) ?: throw UnauthorizedException()

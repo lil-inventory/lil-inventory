@@ -19,6 +19,7 @@ dependencies {
     // modules
     implementation(project(":app:inventory"))
     implementation(project(":app:auth"))
+    implementation(project(":app:common"))
 
     // Spring
     implementation("org.springframework.boot:spring-boot-starter-web")

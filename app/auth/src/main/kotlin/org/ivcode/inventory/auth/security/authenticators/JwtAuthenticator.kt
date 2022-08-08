@@ -28,7 +28,7 @@ abstract class JwtAuthenticator(
             credentials = token,
             authenticated = true,
             authorities = authJwtService.grantedAuthorities(claims)
-                ?.map{ SimpleGrantedAuthority(it.name) }
+                ?.map{ SimpleGrantedAuthority(it.roleName) }
                 ?: emptyList()
         )
     }

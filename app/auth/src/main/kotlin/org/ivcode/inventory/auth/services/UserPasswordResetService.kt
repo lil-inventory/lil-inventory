@@ -5,7 +5,7 @@ import org.ivcode.inventory.auth.repositories.UserPasswordResetDao
 import org.ivcode.inventory.auth.repositories.model.UserPasswordResetEntity
 import org.ivcode.inventory.auth.utils.createRandomString
 import org.ivcode.inventory.auth.utils.hashPassword
-import org.ivcode.inventory.common.exception.BadRequest
+import org.ivcode.inventory.common.exception.BadRequestException
 import org.ivcode.inventory.common.exception.UnauthorizedException
 import org.ivcode.inventory.email.service.EmailService
 import org.ivcode.inventory.email.service.model.SendPasswordResetRequest
@@ -32,7 +32,7 @@ class UserPasswordResetService(
         val user = userDao.readUserByEmail(email)
         if(true != user?.emailVerified) {
             // if the emails is not verified or null
-            throw BadRequest("user's email must be verified to reset password")
+            throw BadRequestException("user's email must be verified to reset password")
         }
 
         val salt = createRandomString(16)

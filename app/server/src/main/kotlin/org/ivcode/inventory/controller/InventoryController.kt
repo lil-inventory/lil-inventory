@@ -1,9 +1,13 @@
 package org.ivcode.inventory.controller
 
 import org.ivcode.inventory.auth.security.InventoryAuthentication
+import org.ivcode.inventory.common.exception.BadRequestException
+import org.ivcode.inventory.common.exception.ForbiddenException
+import org.ivcode.inventory.security.HasAccount
 import org.ivcode.inventory.service.InventorySecurityService
 import org.ivcode.inventory.service.InventoryService
 import org.ivcode.inventory.service.model.Inventory
+import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper
 import org.springframework.web.bind.annotation.*
 import java.security.Principal
 
@@ -14,26 +18,40 @@ class InventoryController(
     private val inventorySecurityService: InventorySecurityService
 ) {
 
+    @HasAccount
     @PostMapping
-    fun createInventory(
+    fun createAccountInventory(
+        auth: InventoryAuthentication,
+        w: SecurityContextHolderAwareRequestWrapper,
         @RequestParam name: String,
-        auth: InventoryAuthentication
+        @RequestParam private: Boolean = false
     ): Inventory {
-        val i = auth.principal.identity
-        return inventoryService.createInventory (
+        if(private && !w.isUserInRole("ACCOUNT_ADMIN")) {
+            // only the account admin can make private account inventories
+            throw ForbiddenException()
+        }
+
+        return inventoryService.createAccountInventory(
             name = name,
-            ownerUserId = i.userId
+            private = private,
+            identity = auth.principal.identity,
+            account = auth.principal.account!!
         )
     }
 
+    @HasAccount
     @GetMapping
-    fun getInventories(
+    fun getAccountInventories (
         auth: InventoryAuthentication
-    ): List<Inventory> = inventoryService.getInventories(auth.principal.identity)
+    ): List<Inventory> = inventoryService
+        .getAccountInventories(
+            identity = auth.principal.identity,
+            account = auth.principal.account!!
+        )
 
-    @PostMapping("/permissions")
+    @PostMapping("{inventoryId}/permissions")
     fun setInventoryPermissions(
-        @RequestParam inventoryId: Long,
+        @PathVariable inventoryId: Long,
         @RequestParam userEmail: String,
         @RequestParam read: Boolean,
         @RequestParam write: Boolean,
@@ -48,9 +66,9 @@ class InventoryController(
         admin = admin
     )
 
-    @DeleteMapping("/permissions")
+    @DeleteMapping("{inventoryId}/permissions")
     fun deleteInventoryPermissions (
-        @RequestParam inventoryId: Long,
+        @PathVariable inventoryId: Long,
         @RequestParam userEmail: String,
         auth: InventoryAuthentication,
     ) = inventorySecurityService.deletePermissions(

@@ -21,14 +21,11 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
             <column name="display_name" type="VARCHAR(127)">
                 <constraints nullable="false"/>
             </column>
-            <!-- super admin users can create accounts -->
-            <column name="super_admin" type="BOOLEAN" defaultValue="false">
+            <column name="super_admin" type="BOOLEAN" defaultValue="false" remarks="super admin users can create accounts">
                 <constraints nullable="false"/>
             </column>
-            <!-- The account that this user belongs to. May be null if not associated with an account -->
-            <column name="account_id" type="BIGINT" />
-            <!-- If true, the user has admin rights over the account -->
-            <column name="account_admin" type="Boolean" />
+            <column name="account_id" type="BIGINT" remarks="The account that this user belongs to. May be null if not associated with an account" />
+            <column name="account_admin" type="Boolean" remarks="If true, the user has admin rights over the account" />
             <column name="salt" type="VARCHAR(255)"/>
             <column name="password" type="VARCHAR(255)"/>
         </createTable>
@@ -154,15 +151,33 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
     <!-- Inventory -->
     <changeSet author="isaiah" id="1.0.10">
         <createTable tableName="inventory">
-            <column name="inventory_id" type="BIGINT" autoIncrement="true">
+            <column name="inventory_id" type="BIGINT" autoIncrement="true" remarks="The inventory id">
                 <constraints primaryKey="true" nullable="false" unique="true"/>
             </column>
-            <column name="name" type="VARCHAR(127)">
+            <column name="name" type="VARCHAR(127)" remarks="The inventory name">
                 <constraints nullable="false"/>
             </column>
-            <column name="owner_user_id" type="BIGINT(127)">
+
+            <column
+                name="private"
+                type="BOOLEAN"
+                remarks="If true, the inventory is not visible to account users unless explicitly specified"
+            >
                 <constraints nullable="false"/>
             </column>
+
+            <!-- Owner. One of the following must be defined. -->
+            <column
+                name="account_id"
+                type="BIGINT"
+                remarks="If defined and user_id is null, the inventory belongs to the account"
+            />
+            <column
+                name="user_id"
+                type="BIGINT"
+                remarks="If defined, the inventory belongs to a user within an account"
+            />
+
         </createTable>
     </changeSet>
 
@@ -188,25 +203,25 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
 
     <changeSet  author="isaiah"  id="1.0.12">
         <addForeignKeyConstraint
-                baseColumnNames="inventory_id"
-                baseTableName="inventory_user"
-                constraintName="fk_inventory_user_inventory"
-                onDelete="CASCADE"
-                onUpdate="RESTRICT"
-                referencedColumnNames="inventory_id"
-                referencedTableName="inventory"
+            baseColumnNames="inventory_id"
+            baseTableName="inventory_user"
+            constraintName="fk_inventory_user_inventory"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="inventory_id"
+            referencedTableName="inventory"
         />
     </changeSet>
 
     <changeSet  author="isaiah"  id="1.0.13">
         <addForeignKeyConstraint
-                baseColumnNames="user_id"
-                baseTableName="inventory_user"
-                constraintName="fk_inventory_user_user"
-                onDelete="CASCADE"
-                onUpdate="RESTRICT"
-                referencedColumnNames="user_id"
-                referencedTableName="user"
+            baseColumnNames="user_id"
+            baseTableName="inventory_user"
+            constraintName="fk_inventory_user_user"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="user_id"
+            referencedTableName="user"
         />
     </changeSet>
 
@@ -227,25 +242,25 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
 
     <changeSet  author="isaiah"  id="1.0.15">
         <addForeignKeyConstraint
-                baseColumnNames="inventory_id"
-                baseTableName="group"
-                constraintName="fk_group_inventory"
-                onDelete="CASCADE"
-                onUpdate="RESTRICT"
-                referencedColumnNames="inventory_id"
-                referencedTableName="inventory"
+            baseColumnNames="inventory_id"
+            baseTableName="group"
+            constraintName="fk_group_inventory"
+            onDelete="CASCADE"
+            onUpdate="RESTRICT"
+            referencedColumnNames="inventory_id"
+            referencedTableName="inventory"
         />
     </changeSet>
 
     <changeSet  author="isaiah"  id="1.0.16">
         <addForeignKeyConstraint
-                baseColumnNames="parent_group_id"
-                baseTableName="group"
-                constraintName="fk_group_group"
-                onDelete="RESTRICT"
-                onUpdate="RESTRICT"
-                referencedColumnNames="group_id"
-                referencedTableName="group"
+            baseColumnNames="parent_group_id"
+            baseTableName="group"
+            constraintName="fk_group_group"
+            onDelete="RESTRICT"
+            onUpdate="RESTRICT"
+            referencedColumnNames="group_id"
+            referencedTableName="group"
         />
     </changeSet>
 

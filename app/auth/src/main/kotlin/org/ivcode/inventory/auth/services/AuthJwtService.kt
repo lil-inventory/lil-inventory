@@ -264,11 +264,13 @@ data class Account (
     val name: String
 )
 
-enum class GrantedAuthorities {
+enum class GrantedAuthorities(
+    val roleName: String
+) {
     /** system administrator */
-    SUPER_ADMIN,
+    SUPER_ADMIN ("ROLE_SUPER_ADMIN"),
     /** account administrator */
-    ACCOUNT_ADMIN
+    ACCOUNT_ADMIN ("ROLE_ACCOUNT_ADMIN")
 }
 
 fun Claims.sessionId(): String = this["sid"] as String

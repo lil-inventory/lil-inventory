@@ -2,7 +2,7 @@ package org.ivcode.inventory.service
 
 import org.ivcode.inventory.auth.services.Identity
 import org.ivcode.inventory.auth.services.UserService
-import org.ivcode.inventory.common.exception.BadRequest
+import org.ivcode.inventory.common.exception.BadRequestException
 import org.ivcode.inventory.common.exception.ForbiddenException
 import org.ivcode.inventory.common.exception.NotFoundException
 import org.ivcode.inventory.repository.InventoryDao
@@ -26,7 +26,8 @@ class InventorySecurityService(
         inventoryId: Long
     ): InventorySecurity {
         val inventory = inventoryDao.readInventory(inventoryId) ?: throw NotFoundException()
-        return if(inventory.ownerUserId==identity.userId) {
+
+        return if(inventory.userId==identity.userId) {
             InventorySecurity(
                 inventory = inventory.toInventory(),
                 read = true,
@@ -70,9 +71,9 @@ class InventorySecurityService(
         }
 
         val user = userService.getUser(email)
-        if(permissions.inventory.owner==user.userId) {
+        if(permissions.inventory.userId==user.userId) {
             // Cannot update owner's permissions
-            throw BadRequest()
+            throw BadRequestException()
         }
 
         // try update
@@ -114,9 +115,9 @@ class InventorySecurityService(
         }
 
         val user = userService.getUser(email)
-        if(permissions.inventory.owner==user.userId) {
+        if(permissions.inventory.userId==user.userId) {
             // Cannot update owner's permissions
-            throw BadRequest()
+            throw BadRequestException()
         }
 
         val count = inventoryUserDao.deleteInventoryUser(inventoryId, user.userId)
