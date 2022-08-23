@@ -14,12 +14,15 @@ class AuthController(
 ) {
 
     @PostMapping("/create")
-    fun registerUser(request: UserRequest) =
-        authService.createUser(
-            email = request.email,
-            displayName = request.displayName,
-            password = request.password
-        )
+    fun createSuperAdmin(
+        @RequestParam email: String,
+        @RequestParam displayName: String,
+        @RequestParam password: String,
+    ) = authService.createSuperAdmin(
+        email = email,
+        displayName = displayName,
+        password = password
+    )
 
     @PostMapping("/token")
     fun auth(

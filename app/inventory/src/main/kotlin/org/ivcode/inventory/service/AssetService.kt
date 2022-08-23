@@ -1,6 +1,6 @@
 package org.ivcode.inventory.service
 
-import org.ivcode.inventory.common.exception.BadRequest
+import org.ivcode.inventory.common.exception.BadRequestException
 import org.ivcode.inventory.common.exception.NotFoundException
 import org.ivcode.inventory.service.model.Asset
 import org.ivcode.inventory.service.model.AssetType
@@ -62,7 +62,7 @@ class AssetService(
         if(assetEntity.assetId == null) {
             // SQL was successful, but insert failed.
             // Cause is most likely because the group's inventory was not equal to the one given
-            throw BadRequest()
+            throw BadRequestException()
         }
 
         return createAssetDto(assetEntity)
@@ -207,12 +207,12 @@ class AssetService(
             throw NotFoundException("no checkouts for user found")
         } else {
             // checkout id not found, and multiple user checkout defined
-            throw BadRequest("checkout id not defined but multiple for user were found")
+            throw BadRequestException("checkout id not defined but multiple for user were found")
         }
 
         // Make sure the given checkout id exists within the asset
         if(!checkoutIds.contains(finalCheckoutId)) {
-            throw BadRequest("checkout id not found within asset")
+            throw BadRequestException("checkout id not found within asset")
         }
 
         if(!discard) {

@@ -4,8 +4,8 @@ import org.apache.ibatis.annotations.*
 import org.ivcode.inventory.repository.model.InventoryEntity
 
 private const val CREATE_INVENTORY = """
-    INSERT INTO `inventory` (name, owner_user_id)
-    VALUES (#{name}, #{ownerUserId})
+    INSERT INTO `inventory` (name, private, account_id, user_id)
+    VALUES (#{name}, #{private}, #{accountId}, #{userId})
 """
 
 private const val READ_INVENTORIES = """
@@ -15,6 +15,19 @@ private const val READ_INVENTORIES = """
         `inventory` AS i LEFT JOIN `inventory_user` AS iu ON i.inventory_id=iu.inventory_id
     WHERE
         i.owner_user_id=#{userId} OR iu.user_id=#{userId} 
+"""
+
+private const val READ_ACCOUNT_INVENTORIES = """
+    SELECT
+        i.*
+    FROM
+        `inventory` AS i LEFT JOIN `inventory_user` AS iu ON i.inventory_id=iu.inventory_id
+    WHERE
+        (i.account_id=#{accountId} AND i.user_id IS NULL)
+        AND (
+            i.private=false
+            OR (iu.user_id=#{userId} AND (iu.read=true OR iu.write=true OR iu.admin=true))
+        )
 """
 
 private const val READ_INVENTORY = """
@@ -39,6 +52,12 @@ interface InventoryDao {
     @Result(property = "name", column = "name")
     @Result(property = "ownerUserId", column = "owner_user_id")
     fun readInventories(userId: Long): List<InventoryEntity>
+
+    @Select(READ_ACCOUNT_INVENTORIES)
+    @Result(property = "inventoryId", column = "inventory_id")
+    @Result(property = "name", column = "name")
+    @Result(property = "ownerUserId", column = "owner_user_id")
+    fun readAccountInventories(accountId: Long, userId: Long): List<InventoryEntity>
 
     @Select(READ_INVENTORY)
     @Result(property = "inventoryId", column = "inventory_id")

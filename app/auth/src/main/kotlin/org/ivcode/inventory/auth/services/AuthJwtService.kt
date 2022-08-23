@@ -7,6 +7,21 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.jvm.Throws
 
+private const val TOKEN_TYPE_ACCESS = "access"
+private const val TOKEN_TYPE_REFRESH = "refresh"
+
+private const val CLAIM_IDENTITY = "identity"
+private const val CLAIM_IDENTITY_USER_ID = "user-id"
+private const val CLAIM_IDENTITY_EMAIL = "email"
+private const val CLAIM_IDENTITY_EMAIL_VERIFIED = "email-verified"
+private const val CLAIM_IDENTITY_DISPLAY_NAME = "display-name"
+
+private const val CLAIM_ACCOUNT = "account"
+private const val CLAIM_ACCOUNT_ACCOUNT_ID = "account-id"
+private const val CLAIM_ACCOUNT_NAME = "name"
+
+private const val CLAIM_AUTHORITIES = "auths"
+
 @Service
 class AuthJwtService (
     @Value("\${application.key}") private val appKey: String,
@@ -14,31 +29,44 @@ class AuthJwtService (
     private val refreshTTL: Long = TimeUnit.HOURS.toMillis(3)
 ) {
 
-    companion object {
-        const val TOKEN_TYPE_ACCESS = "access"
-        const val TOKEN_TYPE_REFRESH = "refresh"
-    }
-
     /**
      * Create access, refresh and refresh tokens
      * @param user user information
      * @param sessionId the session id if it already exists. A new session id will be returned if not defined
      */
-    fun createTokens(identity: Identity, sessionId: UUID = UUID.randomUUID()): TokenInfo {
+    fun createTokens(
+        identity: Identity,
+        account: Account? = null,
+        authorities: List<GrantedAuthorities>? = null,
+        sessionId: UUID = UUID.randomUUID()
+    ): TokenInfo {
         val now = Date()
         return TokenInfo(
-            access = createAccessToken(identity, now),
+            access = createAccessToken(
+                identity = identity,
+                account = account,
+                authorities = authorities,
+                now = now),
             refresh = createRefreshToken(sessionId, now)
         )
     }
 
-    private fun createAccessToken(identity: Identity, now: Date = Date()): AccessTokenInfo {
+    private fun createAccessToken(
+        identity: Identity,
+        account: Account? = null,
+        authorities: List<GrantedAuthorities>? = null,
+        now: Date = Date()
+    ): AccessTokenInfo {
         val expiration = Date(now.time + accessTTL)
 
         return AccessTokenInfo(
             expiration = expiration,
             token = createToken(
-                claims = createAccessClaims(identity),
+                claims = createAccessClaims(
+                    identity = identity,
+                    account = account,
+                    authorities = authorities
+                ),
                 issuedAt = now,
                 expiration = expiration,
                 signingKey = appKey
@@ -64,20 +92,50 @@ class AuthJwtService (
         )
     }
 
-    private fun createAccessClaims(identity: Identity): Map<String, *> =
-        mutableMapOf (
+    private fun createAccessClaims(
+        identity: Identity,
+        account: Account?,
+        authorities: List<GrantedAuthorities>?
+    ): Map<String, *> {
+        val identityClaims = createIdentityClaims(identity)
+        val accountClaims = createAccountClaims(account)
+        val authorityClaims = createAuthorityClaims(authorities)
+
+        val claims = mutableMapOf(
             "email" to identity.email,
-            "identity" to createIdentityClaims(identity),
-            "typ" to TOKEN_TYPE_ACCESS
+            "typ" to TOKEN_TYPE_ACCESS,
+            CLAIM_IDENTITY to identityClaims
         )
+        if(accountClaims!=null) {
+            claims[CLAIM_ACCOUNT] = accountClaims
+        }
+        if(authorityClaims!=null) {
+            claims[CLAIM_AUTHORITIES] = authorityClaims
+        }
+
+        return claims
+    }
 
     private fun createIdentityClaims(identity: Identity): Map<String, *> =
         mutableMapOf (
-            "user_id" to identity.userId,
-            "email" to identity.email,
-            "email-verified" to identity.emailVerified,
-            "display-name" to identity.displayName
+            CLAIM_IDENTITY_USER_ID to identity.userId,
+            CLAIM_IDENTITY_EMAIL to identity.email,
+            CLAIM_IDENTITY_EMAIL_VERIFIED to identity.emailVerified,
+            CLAIM_IDENTITY_DISPLAY_NAME to identity.displayName
         )
+
+    private fun createAccountClaims(account: Account?): Map<String, *>? {
+        if(account==null) return null
+        return mutableMapOf(
+            CLAIM_ACCOUNT_ACCOUNT_ID to account.accountId,
+            CLAIM_ACCOUNT_NAME to account.name
+        )
+    }
+
+    private fun createAuthorityClaims(authorities: List<GrantedAuthorities>?): List<String>? {
+        if(authorities==null || authorities.isEmpty()) return null
+        return authorities.map { it.name }
+    }
 
     private fun createRefreshClaims(sessionId: String): Map<String, *> =
         mutableMapOf(
@@ -94,13 +152,26 @@ class AuthJwtService (
     fun email(claims: Claims): String? = claims["email"] as String
 
     fun identity(claims: Claims): Identity? {
-        val identity = claims["identity"] as Map<String, *>? ?: return null
+        val identity = claims[CLAIM_IDENTITY] as Map<String, *>? ?: return null
         return Identity(
-            userId = (identity["user_id"] as Number).toLong(),
-            email = identity["email"] as String,
-            emailVerified = identity["email-verified"] as Boolean,
-            displayName = identity["display-name"] as String
+            userId = (identity[CLAIM_IDENTITY_USER_ID] as Number).toLong(),
+            email = identity[CLAIM_IDENTITY_EMAIL] as String,
+            emailVerified = identity[CLAIM_IDENTITY_EMAIL_VERIFIED] as Boolean,
+            displayName = identity[CLAIM_IDENTITY_DISPLAY_NAME] as String,
         )
+    }
+
+    fun account(claims: Claims): Account? {
+        val account = claims[CLAIM_ACCOUNT] as Map<String, *>? ?: return null
+        return Account(
+            accountId = (account[CLAIM_ACCOUNT_ACCOUNT_ID] as Number).toLong(),
+            name = account[CLAIM_ACCOUNT_NAME] as String
+        )
+    }
+
+    fun grantedAuthorities(claims: Claims): Collection<GrantedAuthorities>? {
+        val account = claims[CLAIM_AUTHORITIES] as List<String>? ?: return null
+        return account.map { GrantedAuthorities.valueOf(it) }
     }
 
     /**
@@ -188,4 +259,19 @@ data class Identity (
     val displayName: String
 )
 
+data class Account (
+    val accountId: Long,
+    val name: String
+)
+
+enum class GrantedAuthorities(
+    val roleName: String
+) {
+    /** system administrator */
+    SUPER_ADMIN ("ROLE_SUPER_ADMIN"),
+    /** account administrator */
+    ACCOUNT_ADMIN ("ROLE_ACCOUNT_ADMIN")
+}
+
 fun Claims.sessionId(): String = this["sid"] as String
+
