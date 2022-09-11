@@ -2,7 +2,6 @@ package org.ivcode.inventory.controller
 
 import org.ivcode.inventory.security.InventoryAuth
 import org.ivcode.inventory.service.GroupNavigationService
-import org.ivcode.inventory.service.model.InventorySecurity
 import org.ivcode.inventory.service.model.NavigationElement
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -17,7 +16,7 @@ class NavigationController(
     val inventoryAuth: InventoryAuth
 ) {
 
-    @GetMapping("/")
+    @GetMapping
     fun getRoot(
         @PathVariable inventoryId: Long
     ): NavigationElement {

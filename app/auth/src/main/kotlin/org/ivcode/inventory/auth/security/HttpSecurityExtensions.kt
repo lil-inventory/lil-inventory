@@ -32,6 +32,8 @@ fun HttpSecurity.enableInventorySecurity(): HttpSecurity = this
     .sessionManagement()
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         .and()
+    .cors()
+        .and()
     .addFilterBefore(InventorySecurityChain()
         .with(BearerAuthenticator(jwtCodec))
         .with(CookieAuthenticator(jwtCodec))

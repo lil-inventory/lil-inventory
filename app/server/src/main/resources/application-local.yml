@@ -24,5 +24,11 @@ smtp:
   port: 1025
   from: no-reply@lil-inventory.com
 
+cors:
+  allow-credentials: true
+
+  # comma separated list, example: http://www.foo.com, http://www.bar.com
+  allowed-origins: http://localhost:9000
+
 logging.level.org.mybatis.spring: TRACE
 logging.level.org.ivcode.inventory: TRACE

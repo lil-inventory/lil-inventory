@@ -13,8 +13,7 @@ class CookieAuthenticator(
     }
 
     override fun authenticate(request: HttpServletRequest): InventoryAuthentication? {
-        val cookie = request
-            .cookies
+        val cookie = request.cookies
             ?.firstOrNull { it.name.equals(COOKIE_NAME, ignoreCase = true) }?.value
             ?: return null
 
