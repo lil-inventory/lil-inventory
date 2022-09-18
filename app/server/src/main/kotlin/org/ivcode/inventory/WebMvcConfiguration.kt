@@ -2,6 +2,7 @@ package org.ivcode.inventory
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration
+import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry
 
@@ -19,9 +20,9 @@ class WebMvcConfiguration(
         registry.addViewController("/").setViewName("redirect:${homePath}")
 
     override fun addCorsMappings(registry: CorsRegistry) {
-        // TODO move CORS to properties
         registry
             .addMapping("/**")
+            .allowedMethods(CorsConfiguration.ALL)
             .allowedOrigins (*allowedOrigins.toTypedArray())
             .allowCredentials(allowCredentials)
     }
