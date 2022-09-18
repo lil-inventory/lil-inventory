@@ -8,9 +8,6 @@ data class GroupSummary (
     @Schema(description = "Group Identifier")
     val groupId: Long,
 
-    @Schema(description = "Inventory Identifier")
-    val inventoryId: Long,
-
     @Schema(description = "Group Name")
     val name: String,
 

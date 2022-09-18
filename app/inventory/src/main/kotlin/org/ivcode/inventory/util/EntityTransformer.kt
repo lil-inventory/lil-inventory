@@ -51,7 +51,6 @@ fun AssetEntity.toAssetSummary() = AssetSummary (
 
 fun GroupEntity.toGroupSummary() = GroupSummary(
     groupId = this.groupId!!,
-    inventoryId = this.inventoryId!!,
     name = this.name!!,
     parentGroupId = this.parentGroupId
 )

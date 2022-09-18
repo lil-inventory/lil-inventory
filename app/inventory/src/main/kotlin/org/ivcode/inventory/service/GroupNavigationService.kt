@@ -22,6 +22,7 @@ class GroupNavigationService(
         val assets = assetDao.readAssetsByGroup(inventoryId, null)
 
         return NavigationElement(
+            inventoryId = inventoryId,
             groupId = null,
             name = "root",
             path = emptyList(),
@@ -41,6 +42,7 @@ class GroupNavigationService(
         val assets = assetDao.readAssetsByGroup(inventoryId, groupInt)
 
         return NavigationElement(
+            inventoryId = inventoryId,
             groupId = group.groupId,
             name = group.name!!,
             path = parsePath(group.path),

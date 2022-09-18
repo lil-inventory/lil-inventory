@@ -1,6 +1,7 @@
 package org.ivcode.inventory.service.model
 
 data class NavigationElement (
+    val inventoryId: Long?,
     val groupId: Long?,
     val name: String,
     val path: List<GroupPathElement>,
