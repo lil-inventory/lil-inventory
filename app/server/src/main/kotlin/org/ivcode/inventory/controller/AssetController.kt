@@ -1,7 +1,6 @@
 package org.ivcode.inventory.controller
 
-import org.ivcode.inventory.controller.model.ConsumableAssetRequest
-import org.ivcode.inventory.controller.model.NonConsumableAssetRequest
+import org.ivcode.inventory.controller.model.AssetRequest
 import org.ivcode.inventory.security.InventoryAuth
 import org.ivcode.inventory.service.model.Asset
 import org.ivcode.inventory.service.AssetService
@@ -37,67 +36,31 @@ class AssetController (
         )
     }
 
-    @PostMapping("/non-consumable")
-    fun createNonConsumable (
+    @PostMapping
+    fun createAsset(
         @PathVariable inventoryId: Long,
-        @RequestBody request: NonConsumableAssetRequest
-    ): Asset {
+        @RequestBody request: AssetRequest
+    ) {
         inventoryAuth.hasWrite(inventoryId)
-        return assetService.createNonConsumableAsset (
+        return assetService.createAsset(
             inventoryId = inventoryId,
             name = request.name,
             barcode = request.barcode,
-            quantity = request.quantity,
             groupId = request.groupId
         )
     }
 
-    @PutMapping("/non-consumable/{assetId}")
-    fun updateNonConsumable (
+    @PutMapping("/{assetId}")
+    fun updateAsset(
         @PathVariable inventoryId: Long,
         @PathVariable assetId: Long,
-        @RequestBody request: NonConsumableAssetRequest
-    ): Asset {
+        @RequestBody request: AssetRequest
+    ) {
         inventoryAuth.hasWrite(inventoryId)
-        return assetService.updateNonConsumableAsset(
-            assetId = assetId,
-            inventoryId = inventoryId,
-            name = request.name,
-            barcode = request.barcode,
-            quantity = request.quantity,
-            groupId = request.groupId
-        )
-    }
-
-    @PostMapping("/consumable")
-    fun createConsumable(
-        @PathVariable inventoryId: Long,
-        @RequestBody request: ConsumableAssetRequest
-    ): Asset {
-        inventoryAuth.hasWrite(inventoryId)
-        return assetService.createConsumableAsset(
-            inventoryId = inventoryId,
-            name = request.name,
-            barcode = request.barcode,
-            quantity = request.quantity,
-            quantityMinimum = request.quantityMinimum,
-            groupId = request.groupId
-        )
-    }
-
-    @PutMapping("/consumable/{assetId}")
-    fun updateConsumable(
-        @PathVariable inventoryId: Long,
-        @PathVariable assetId: Long,
-        @RequestBody request: ConsumableAssetRequest
-    ): Asset {
-        inventoryAuth.hasWrite(inventoryId)
-        return assetService.updateConsumableAsset(
+        return assetService.updateAsset(
             assetId = assetId,
             name = request.name,
             barcode = request.barcode,
-            quantity = request.quantity,
-            quantityMinimum = request.quantityMinimum,
             groupId = request.groupId
         )
     }

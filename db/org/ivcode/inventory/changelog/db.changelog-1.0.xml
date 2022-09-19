@@ -275,30 +275,12 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
             <column name="name" type="VARCHAR(127)">
                 <constraints nullable="false"/>
             </column>
-            <column name="asset_type" type="VARCHAR(32)" >
-                <constraints nullable="false"/>
-            </column>
             <column name="barcode" type="VARCHAR(255)" />
-            <column name="quantity" type="INT" >
-                <constraints nullable="false" />
-            </column>
-            <column name="quantity_minimum" type="INT" />
             <column name="group_id" type="BIGINT" />
         </createTable>
     </changeSet>
 
-    <changeSet author="isaiah" id="1.0.18">
-        <sql>
-            ALTER TABLE `asset`
-            ADD CONSTRAINT chk_quantity CHECK (`quantity` >= 0);
-        </sql>
-        <rollback>
-            ALTER TABLE `asset`
-            DROP CONSTRAINT chk_quantity;
-        </rollback>
-    </changeSet>
-
-    <changeSet  author="isaiah"  id="1.0.19">
+    <changeSet  author="isaiah"  id="1.0.18">
         <addForeignKeyConstraint
                 baseColumnNames="inventory_id"
                 baseTableName="asset"
@@ -310,7 +292,7 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
         />
     </changeSet>
 
-    <changeSet author="isaiah"  id="1.0.20">
+    <changeSet author="isaiah"  id="1.0.19">
         <addForeignKeyConstraint
                 baseColumnNames="group_id"
                 baseTableName="asset"
@@ -322,7 +304,7 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
         />
     </changeSet>
 
-    <changeSet author="isaiah" id="1.0.21">
+    <changeSet author="isaiah" id="1.0.20">
         <createTable tableName="image">
             <column name="image_id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false" unique="true"/>
@@ -342,7 +324,7 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
         </createTable>
     </changeSet>
 
-    <changeSet author="isaiah" id="1.0.22">
+    <changeSet author="isaiah" id="1.0.21">
         <addForeignKeyConstraint
                 baseColumnNames="asset_id"
                 baseTableName="image"

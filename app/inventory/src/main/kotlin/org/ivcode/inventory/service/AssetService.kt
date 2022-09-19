@@ -20,40 +20,19 @@ class AssetService(
 ) {
 
     @Transactional(rollbackFor = [ Throwable::class ])
-    fun createNonConsumableAsset (
+    fun createAsset (
         inventoryId: Long,
         name: String,
         barcode: String? = null,
-        quantity: Int,
-        groupId: Long? = null,
-    ): Asset = createAsset(AssetEntity(
-        inventoryId = inventoryId,
-        name = name,
-        type = AssetType.NON_CONSUMABLE.code,
-        barcode = barcode,
-        quantity = quantity,
-        groupId = groupId
-    ))
-
-    @Transactional(rollbackFor = [ Throwable::class ])
-    fun createConsumableAsset(
-        inventoryId: Long,
-        name: String,
-        barcode: String? = null,
-        quantity: Int,
-        quantityMinimum: Int,
         groupId: Long? = null
-    ): Asset = createAsset(AssetEntity(
+    ) = createAsset(AssetEntity(
         inventoryId = inventoryId,
         name = name,
-        type = AssetType.CONSUMABLE.code,
         barcode = barcode,
-        quantity = quantity,
-        quantityMinimum = quantityMinimum,
         groupId = groupId
     ))
 
-    private fun createAsset(assetEntity: AssetEntity): Asset {
+    private fun createAsset(assetEntity: AssetEntity) {
         assetDao.createAsset(assetEntity)
 
         if(assetEntity.assetId == null) {
@@ -61,8 +40,6 @@ class AssetService(
             // Cause is most likely because the group's inventory was not equal to the one given
             throw BadRequestException()
         }
-
-        return createAssetDto(assetEntity)
     }
 
     private fun createAssetDto(assetEntity: AssetEntity): Asset {
@@ -76,23 +53,14 @@ class AssetService(
 
         val images = imageDao.readAssetImageInfo(assetId).map { it.toAssetImageInfo() }
 
-        val isNonConsumable = assetEntity.type == AssetType.NON_CONSUMABLE.code
-
-        val quantityTotal = if(isNonConsumable) {
-            assetEntity.quantity!!
-        } else {
-            null
-        }
-
         return assetEntity.toAsset (
-            quantityTotal = quantityTotal,
             group = group,
             images = images
         )
     }
 
     @Transactional(rollbackFor = [ Throwable::class ])
-    fun readAsset(
+    fun readAsset (
         inventoryId: Long,
         assetId: Long
     ): Asset {
@@ -101,48 +69,24 @@ class AssetService(
     }
 
     @Transactional(rollbackFor = [ Throwable::class ])
-    fun updateNonConsumableAsset(
-        assetId: Long,
-        inventoryId: Long,
-        name: String,
-        barcode: String?,
-        quantity: Int,
-        groupId: Long?
-    ): Asset = updateAsset(AssetEntity (
-        assetId = assetId,
-        inventoryId = inventoryId,
-        name = name,
-        type = AssetType.NON_CONSUMABLE.code,
-        barcode = barcode,
-        quantity = quantity,
-        groupId = groupId
-    ))
-
-    @Transactional(rollbackFor = [ Throwable::class ])
-    fun updateConsumableAsset(
+    fun updateAsset(
         assetId: Long,
         name: String,
         barcode: String? = null,
-        quantity: Int,
-        quantityMinimum: Int,
         groupId: Long? = null
-    ): Asset = updateAsset(AssetEntity(
+    ) = updateAsset(AssetEntity(
         assetId = assetId,
         name = name,
         barcode = barcode,
-        quantity = quantity,
-        quantityMinimum = quantityMinimum,
         groupId = groupId
     ))
 
-    private fun updateAsset(assetEntity: AssetEntity): Asset {
+    private fun updateAsset(assetEntity: AssetEntity) {
         val count = assetDao.updateAsset(assetEntity)
         if (count==0) {
             // TODO count==0 could imply not found or that the inventory ids don't match
             throw NotFoundException()
         }
-
-        return createAssetDto(assetEntity)
     }
 
     @Transactional(rollbackFor = [ Throwable::class ])

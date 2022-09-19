@@ -8,15 +8,15 @@ import org.ivcode.inventory.repository.model.AssetEntity
  * Only create if the group's inventory id is the same
  */
 private const val CREATE_ASSET = """<script>
-    INSERT INTO asset (inventory_id, name, asset_type, barcode, quantity, quantity_minimum, group_id)
+    INSERT INTO asset (inventory_id, name, barcode, group_id)
     <choose>
         <when test="groupId != null">
-            SELECT #{inventoryId}, #{name}, #{type}, #{barcode}, #{quantity}, #{quantityMinimum}, #{groupId}
+            SELECT #{inventoryId}, #{name}, #{barcode}, #{groupId}
             FROM `group` 
             WHERE `group`.group_id=#{groupId} AND `group`.inventory_id=#{inventoryId}
         </when>
         <otherwise>
-            VALUES (#{inventoryId}, #{name}, #{type}, #{barcode}, #{quantity}, #{quantityMinimum}, #{groupId})        
+            VALUES (#{inventoryId}, #{name}, #{barcode}, #{groupId})        
         </otherwise>
     </choose>
 </script>"""
@@ -49,10 +49,7 @@ private const val UPDATE_ASSET = """<script>
     SET
         asset.inventory_id=#{inventoryId},
         asset.name=#{name},
-        asset.asset_type=#{type},
         asset.barcode=#{barcode},
-        asset.quantity=#{quantity},
-        asset.quantity_minimum=#{quantityMinimum},
         asset.group_id=#{groupId}
     <choose>
         <when test="groupId != null">
@@ -67,11 +64,6 @@ private const val UPDATE_ASSET = """<script>
 private const val DELETE_ASSET =
     "DELETE FROM asset WHERE inventory_id=#{inventoryId} AND asset_id=#{assetId}"
 
-private const val ADD_QUANTITY = """
-    UPDATE asset
-    SET quantity = quantity + #{quantity}
-    WHERE inventory_id=#{inventoryId} AND asset_id=#{assetId}
-"""
 
 
 @Mapper
@@ -85,11 +77,7 @@ interface AssetDao {
     @Result(property = "assetId", column = "asset_id")
     @Result(property = "inventoryId", column = "inventory_id")
     @Result(property = "name", column = "name")
-    @Result(property = "type", column = "asset_type")
     @Result(property = "barcode", column = "barcode")
-    @Result(property = "quantity", column = "quantity")
-    @Result(property = "quantityMinimum", column = "quantity_minimum")
-    @Result(property = "quantityTotal", column = "quantity_total")
     @Result(property = "groupId", column="group_id")
     fun readAsset(inventoryId: Long, assetId: Long): AssetEntity?
 
@@ -97,11 +85,7 @@ interface AssetDao {
     @Result(property = "assetId", column = "asset_id")
     @Result(property = "inventoryId", column = "inventory_id")
     @Result(property = "name", column = "name")
-    @Result(property = "type", column = "asset_type")
     @Result(property = "barcode", column = "barcode")
-    @Result(property = "quantity", column = "quantity")
-    @Result(property = "quantityMinimum", column = "quantity_minimum")
-    @Result(property = "quantityTotal", column = "quantity_total")
     @Result(property = "groupId", column="group_id")
     fun readAssetsByGroup(inventoryId: Long, groupId: Long?): List<AssetEntity>
 
@@ -110,7 +94,4 @@ interface AssetDao {
 
     @Delete(DELETE_ASSET)
     fun deleteAsset(inventoryId: Long, assetId: Long): Int
-
-    @Update(ADD_QUANTITY)
-    fun addQuantity(inventoryId: Long, assetId: Long, quantity: Int): Int
 }

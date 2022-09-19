@@ -24,25 +24,19 @@ private class EntityTransformer() {
 private lateinit var objectMapper: ObjectMapper
 
 fun AssetEntity.toAsset(
-    quantityTotal: Int? = null,
     group: Group? = null,
     images: List<AssetImageInfo>
 ) = Asset (
     assetId = this.assetId!!,
     inventoryId = this.inventoryId!!,
     name = this.name!!,
-    type = AssetType.findAssetType(this.type!!)!!,
     barcode = this.barcode,
-    quantity = this.quantity!!,
-    quantityMinimum = this.quantityMinimum,
-    quantityTotal = quantityTotal,
     group = group,
     images = images
 )
 
 fun AssetEntity.toAssetSummary() = AssetSummary (
     assetId = this.assetId!!,
-    type = AssetType.findAssetType(this.type!!)!!,
     name = this.name!!,
     barcode = this.barcode
 )
