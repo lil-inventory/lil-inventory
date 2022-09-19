@@ -5,11 +5,9 @@ import org.ivcode.inventory.common.exception.NotFoundException
 import org.ivcode.inventory.service.model.Asset
 import org.ivcode.inventory.service.model.AssetType
 import org.ivcode.inventory.repository.AssetDao
-import org.ivcode.inventory.repository.CheckoutDao
 import org.ivcode.inventory.repository.GroupDao
 import org.ivcode.inventory.repository.ImageDao
 import org.ivcode.inventory.repository.model.AssetEntity
-import org.ivcode.inventory.auth.services.Identity
 import org.ivcode.inventory.util.*
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -17,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class AssetService(
     private val assetDao: AssetDao,
-    private val checkoutDao: CheckoutDao,
     private val groupDao: GroupDao,
     private val imageDao: ImageDao
 ) {
@@ -81,14 +78,8 @@ class AssetService(
 
         val isNonConsumable = assetEntity.type == AssetType.NON_CONSUMABLE.code
 
-        val checkouts = if(isNonConsumable) {
-            checkoutDao.readCheckouts(assetId).map { it.toCheckout() }
-        } else {
-            null
-        }
-
         val quantityTotal = if(isNonConsumable) {
-            assetEntity.quantity!! + (checkouts?.size ?: 0)
+            assetEntity.quantity!!
         } else {
             null
         }
@@ -96,7 +87,6 @@ class AssetService(
         return assetEntity.toAsset (
             quantityTotal = quantityTotal,
             group = group,
-            checkouts = checkouts,
             images = images
         )
     }
@@ -164,60 +154,5 @@ class AssetService(
         if(count==0) {
             throw NotFoundException()
         }
-    }
-
-    @Transactional(rollbackFor = [ Throwable::class ])
-    fun checkoutNonConsumableAsset (
-        identity: Identity,
-        inventoryId: Long,
-        assetId: Long,
-        notes: String?
-    ) {
-        assetDao.addQuantity(inventoryId, assetId, -1)
-        checkoutDao.createCheckout(assetId, identity.userId, notes)
-    }
-
-    @Transactional(rollbackFor = [ Throwable::class ])
-    fun checkInNonConsumableAsset(
-        assetId: Long,
-        inventoryId: Long,
-        checkoutId: Long?,
-        discard: Boolean = false
-    ) {
-        val checkouts = checkoutDao.readCheckouts(assetId)
-
-        // Make sure there are checkouts to delete
-        if(checkouts.isEmpty()) {
-            throw NotFoundException("asset has no checkouts")
-        }
-
-        // All checkout ids
-        val checkoutIds = checkouts.map { it.checkoutId }.toSet()
-
-        // TODO filter to checkouts made by the user
-        // User specific checkout ids
-        val userCheckoutIds = checkoutIds
-
-        // A checkout id is required if more than one of the asset is checkout by the user
-        val finalCheckoutId: Long = checkoutId ?: if(userCheckoutIds.size==1) {
-            // checkout id not found, and only one user checkout defined
-            checkoutIds.first()!!
-        } else if(userCheckoutIds.isEmpty()) {
-            // checkout id not found, and no user checkout defined
-            throw NotFoundException("no checkouts for user found")
-        } else {
-            // checkout id not found, and multiple user checkout defined
-            throw BadRequestException("checkout id not defined but multiple for user were found")
-        }
-
-        // Make sure the given checkout id exists within the asset
-        if(!checkoutIds.contains(finalCheckoutId)) {
-            throw BadRequestException("checkout id not found within asset")
-        }
-
-        if(!discard) {
-            assetDao.addQuantity(inventoryId, assetId, 1)
-        }
-        checkoutDao.deleteCheckouts(finalCheckoutId)
     }
 }

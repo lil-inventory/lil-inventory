@@ -9,7 +9,6 @@ data class Asset (
     val quantity: Int,
     val quantityMinimum: Int? = null,
     val quantityTotal: Int? = null,
-    val checkouts: List<Checkout>? = null,
     val images: List<AssetImageInfo>,
     val group: Group? = null,
 )

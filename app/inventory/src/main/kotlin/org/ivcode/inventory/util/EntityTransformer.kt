@@ -26,7 +26,6 @@ private lateinit var objectMapper: ObjectMapper
 fun AssetEntity.toAsset(
     quantityTotal: Int? = null,
     group: Group? = null,
-    checkouts: List<Checkout>? = null,
     images: List<AssetImageInfo>
 ) = Asset (
     assetId = this.assetId!!,
@@ -38,7 +37,6 @@ fun AssetEntity.toAsset(
     quantityMinimum = this.quantityMinimum,
     quantityTotal = quantityTotal,
     group = group,
-    checkouts = checkouts,
     images = images
 )
 
@@ -60,13 +58,6 @@ fun GroupPathEntity.toGroup() = Group (
     inventoryId = this.inventoryId!!,
     name = this.name!!,
     path = parsePath(this.path)
-)
-
-fun CheckoutEntity.toCheckout() = Checkout (
-    checkoutId = this.checkoutId!!,
-    username = this.userDisplayName!!,
-    notes = this.notes,
-    timestamp = this.timestamp!!
 )
 
 fun ImageInfoEntity.toImageInfo() = ImageInfo (
