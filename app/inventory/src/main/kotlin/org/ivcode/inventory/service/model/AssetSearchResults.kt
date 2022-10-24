@@ -4,5 +4,5 @@ data class AssetSearchResults (
     val page: Int,
     val pageSize: Int,
     val totalPages: Int,
-    val assets: List<AssetSummary>
+    val assets: List<AssetNavInfo>
 )

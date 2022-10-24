@@ -51,4 +51,14 @@ class InventoryService(
         accountId = account.accountId,
         userId = identity.userId
     ).map { it.toInventory() }
+
+    @Transactional(rollbackFor = [ Throwable::class ])
+    fun getInventory(
+        inventoryId: Long
+    ): Inventory? = inventoryDao.readInventory(inventoryId)?.toInventory()
+
+    @Transactional(rollbackFor = [ Throwable::class ])
+    fun deleteAccountInventory(inventoryId: Long) {
+        inventoryDao.deleteInventory(inventoryId)
+    }
 }

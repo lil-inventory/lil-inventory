@@ -35,23 +35,32 @@ fun AssetEntity.toAsset(
     images = images
 )
 
-fun AssetEntity.toAssetSummary() = AssetSummary (
+fun AssetEntity.toAssetNavInfo() = AssetNavInfo (
     assetId = this.assetId!!,
     name = this.name!!,
-    barcode = this.barcode
 )
 
-fun GroupEntity.toGroupSummary() = GroupSummary(
+fun GroupEntity.toGroup() = Group (
     groupId = this.groupId!!,
-    name = this.name!!,
+    inventoryId = this.inventoryId,
+    name = this.name,
     parentGroupId = this.parentGroupId
+)
+
+fun GroupEntity.toGroupNavInfo() = GroupNavInfo(
+    groupId = this.groupId!!,
+    name = this.name!!
+)
+
+fun GroupPathEntity.toGroupNavInfo() = GroupNavInfo(
+    groupId = this.groupId!!,
+    name = this.name!!
 )
 
 fun GroupPathEntity.toGroup() = Group (
     groupId = this.groupId!!,
     inventoryId = this.inventoryId!!,
-    name = this.name!!,
-    path = parsePath(this.path)
+    name = this.name!!
 )
 
 fun ImageInfoEntity.toImageInfo() = ImageInfo (
@@ -73,6 +82,11 @@ fun InventoryEntity.toInventory() = Inventory (
     private =this.private,
     userId = this.userId,
     accountId = this.accountId
+)
+
+fun InventoryEntity.toInventoryNavInfo() = InventoryNavInfo(
+    inventoryId = this.inventoryId!!,
+    name = this.name
 )
 
 fun parsePath(path: String?) =

@@ -16,6 +16,9 @@ class NavigationController(
     val inventoryAuth: InventoryAuth
 ) {
 
+    /**
+     * Pulls the root navigation element
+     */
     @GetMapping
     fun getRoot(
         @PathVariable inventoryId: Long
@@ -24,12 +27,27 @@ class NavigationController(
         return groupNavigationService.getRootGroupNavigation(inventoryId)
     }
 
-    @GetMapping("/{groupId}")
+    /**
+     * Pulls the navigation element based on the given group
+     */
+    @GetMapping("/group/{groupId}")
     fun getGroupNavigation(
         @PathVariable inventoryId: Long,
         @PathVariable groupId: Long
     ): NavigationElement {
         inventoryAuth.hasRead(inventoryId)
         return groupNavigationService.getGroupNavigation(inventoryId,groupId)
+    }
+
+    /**
+     * Pulls the navigation element based on the given asset
+     */
+    @GetMapping("/asset/{assetId}")
+    fun getAssetNavigation(
+        @PathVariable inventoryId: Long,
+        @PathVariable assetId: Long
+    ): NavigationElement {
+        inventoryAuth.hasRead(inventoryId)
+        return groupNavigationService.getAssetNavigation(inventoryId, assetId)
     }
 }

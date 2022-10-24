@@ -1,8 +1,8 @@
 package org.ivcode.inventory.service.model
 
-data class Group(
-    val groupId: Long,
-    val inventoryId: Long,
-    val name: String,
-    val path: List<GroupPathElement>
+data class Group (
+    val groupId: Long? = null,
+    val inventoryId: Long? = null,
+    val parentGroupId: Long? = null,
+    val name: String? = null
 )

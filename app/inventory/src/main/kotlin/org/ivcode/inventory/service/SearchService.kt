@@ -3,7 +3,7 @@ package org.ivcode.inventory.service
 import org.ivcode.inventory.repository.SearchDao
 import org.ivcode.inventory.repository.model.PageInfo
 import org.ivcode.inventory.service.model.AssetSearchResults
-import org.ivcode.inventory.util.toAssetSummary
+import org.ivcode.inventory.util.toAssetNavInfo
 import org.springframework.stereotype.Service
 
 @Service
@@ -19,7 +19,7 @@ class SearchService(
             page = page,
             pageSize = pageSize,
             totalPages = total / pageSize,
-            assets = pageResults.map { it.toAssetSummary() }
+            assets = pageResults.map { it.toAssetNavInfo() }
         )
     }
 }

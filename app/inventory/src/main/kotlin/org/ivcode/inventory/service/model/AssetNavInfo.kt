@@ -3,8 +3,7 @@ package org.ivcode.inventory.service.model
 import io.swagger.v3.oas.annotations.media.Schema
 
 @Schema(description = "An asset summary")
-data class AssetSummary (
+data class AssetNavInfo (
     val assetId: Long,
-    val name: String,
-    val barcode: String?
+    val name: String
 )

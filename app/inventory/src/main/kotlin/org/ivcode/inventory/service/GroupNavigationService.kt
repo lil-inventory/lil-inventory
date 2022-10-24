@@ -4,50 +4,64 @@ import org.ivcode.inventory.common.exception.NotFoundException
 import org.ivcode.inventory.service.model.NavigationElement
 import org.ivcode.inventory.repository.AssetDao
 import org.ivcode.inventory.repository.GroupDao
-import org.ivcode.inventory.util.parsePath
-import org.ivcode.inventory.util.toAssetSummary
-import org.ivcode.inventory.util.toGroupSummary
+import org.ivcode.inventory.repository.InventoryDao
+import org.ivcode.inventory.util.*
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
 class GroupNavigationService(
-    val assetDao: AssetDao,
-    val groupDao: GroupDao
+    val inventoryDao: InventoryDao,
+    val groupDao: GroupDao,
+    val assetDao: AssetDao
 ) {
 
     @Transactional(rollbackFor = [ Throwable::class ])
     fun getRootGroupNavigation(inventoryId: Long): NavigationElement {
+        val inventory = inventoryDao.readInventory(inventoryId)
         val groups = groupDao.readGroupsByParent(inventoryId, null)
         val assets = assetDao.readAssetsByGroup(inventoryId, null)
 
         return NavigationElement(
-            inventoryId = inventoryId,
-            groupId = null,
-            name = "root",
+            inventory = inventory!!.toInventoryNavInfo(),
+            group = null,
             path = emptyList(),
-            groups = groups.map { it.toGroupSummary() },
-            assets = assets.map { it.toAssetSummary() }
+            childGroups = groups.map { it.toGroupNavInfo() },
+            childAssets = assets.map { it.toAssetNavInfo() }
         )
     }
 
     @Transactional(rollbackFor = [ Throwable::class ])
-    fun getGroupNavigation(
+    fun getGroupNavigation (
         inventoryId: Long,
         groupInt: Long
     ): NavigationElement {
+        val inventory = inventoryDao.readInventory(inventoryId)
         val group = groupDao.readGroupPath(inventoryId, groupInt) ?: throw NotFoundException()
 
         val groups = groupDao.readGroupsByParent(inventoryId, groupInt)
         val assets = assetDao.readAssetsByGroup(inventoryId, groupInt)
 
         return NavigationElement(
-            inventoryId = inventoryId,
-            groupId = group.groupId,
-            name = group.name!!,
+            inventory = inventory!!.toInventoryNavInfo(),
+            group = group.toGroupNavInfo(),
             path = parsePath(group.path),
-            groups = groups.map { it.toGroupSummary() },
-            assets = assets.map { it.toAssetSummary() }
+            childGroups = groups.map { it.toGroupNavInfo() },
+            childAssets = assets.map { it.toAssetNavInfo() }
         )
+    }
+
+    fun getAssetNavigation (
+        inventoryId: Long,
+        assetId: Long
+    ): NavigationElement {
+        val asset = assetDao.readAsset(inventoryId, assetId) ?: throw NotFoundException()
+
+        val groupId = asset.groupId
+        return if(groupId==null) {
+            getRootGroupNavigation(inventoryId)
+        } else {
+            getGroupNavigation(inventoryId, groupId)
+        }
     }
 }

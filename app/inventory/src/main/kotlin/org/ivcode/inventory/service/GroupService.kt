@@ -1,10 +1,12 @@
 package org.ivcode.inventory.service
 
 import org.ivcode.inventory.common.exception.NotFoundException
-import org.ivcode.inventory.service.model.GroupSummary
 import org.ivcode.inventory.repository.GroupDao
 import org.ivcode.inventory.repository.model.GroupEntity
-import org.ivcode.inventory.util.toGroupSummary
+import org.ivcode.inventory.service.model.Group
+import org.ivcode.inventory.service.model.GroupNavInfo
+import org.ivcode.inventory.util.toGroup
+import org.ivcode.inventory.util.toGroupNavInfo
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -18,7 +20,7 @@ class GroupService(
         inventoryId: Long,
         name: String,
         parentGroupId: Long?
-    ): GroupSummary {
+    ) {
         val entity = GroupEntity (
             inventoryId = inventoryId,
             name = name,
@@ -26,15 +28,21 @@ class GroupService(
         )
 
         groupDao.createGroup(entity)
-        return entity.toGroupSummary()
     }
 
     @Transactional(rollbackFor = [ Throwable::class ])
     fun readGroup(
         inventoryId: Long,
         groupId: Long
-    ): GroupSummary =
-        groupDao.readGroup(inventoryId, groupId)?.toGroupSummary() ?: throw NotFoundException()
+    ): Group =
+        groupDao.readGroup(inventoryId, groupId)?.toGroup() ?: throw NotFoundException()
+
+    @Transactional(rollbackFor = [ Throwable::class ])
+    fun readGroupNavInfo(
+        inventoryId: Long,
+        groupId: Long
+    ): GroupNavInfo =
+        groupDao.readGroup(inventoryId, groupId)?.toGroupNavInfo() ?: throw NotFoundException()
 
     @Transactional(rollbackFor = [ Throwable::class ])
     fun updateGroup(

@@ -40,6 +40,10 @@ private const val UPDATE_INVENTORY = """
     WHERE inventory_id=#{inventoryId}
 """
 
+private const val DELETE_INVENTORY = """
+    DELETE FROM `inventory` WHERE inventory_id=#{inventoryId}
+"""
+
 @Mapper
 interface InventoryDao {
 
@@ -67,4 +71,7 @@ interface InventoryDao {
 
     @Update(UPDATE_INVENTORY)
     fun updateInventory(inventoryId: Long, name: String): Int
+
+    @Delete(DELETE_INVENTORY)
+    fun deleteInventory(inventoryId: Long): Int
 }

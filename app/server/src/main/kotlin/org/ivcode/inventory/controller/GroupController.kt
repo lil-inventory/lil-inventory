@@ -1,8 +1,8 @@
 package org.ivcode.inventory.controller
 
 import org.ivcode.inventory.security.InventoryAuth
-import org.ivcode.inventory.service.model.GroupSummary
 import org.ivcode.inventory.service.GroupService
+import org.ivcode.inventory.service.model.Group
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -17,9 +17,9 @@ class GroupController(
         @PathVariable inventoryId: Long,
         @RequestParam name: String,
         @RequestParam parentGroupId: Long?,
-    ): GroupSummary {
+    ) {
         inventoryAuth.hasWrite(inventoryId)
-        return groupService.createGroup(
+        groupService.createGroup(
             inventoryId = inventoryId,
             name = name,
             parentGroupId = parentGroupId
@@ -30,9 +30,9 @@ class GroupController(
     fun getGroup(
         @PathVariable inventoryId: Long,
         @PathVariable groupId: Long
-    ): GroupSummary {
+    ): Group {
         inventoryAuth.hasRead(inventoryId)
-        return groupService.readGroup(
+        return groupService.readGroup (
             inventoryId = inventoryId,
             groupId = groupId
         )

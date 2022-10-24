@@ -3,6 +3,7 @@ package org.ivcode.inventory.controller
 import org.ivcode.inventory.auth.security.InventoryAuthentication
 import org.ivcode.inventory.common.exception.ForbiddenException
 import org.ivcode.inventory.security.HasAccount
+import org.ivcode.inventory.security.InventoryAuth
 import org.ivcode.inventory.service.InventorySecurityService
 import org.ivcode.inventory.service.InventoryService
 import org.ivcode.inventory.service.model.Inventory
@@ -13,7 +14,8 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/inventory")
 class InventoryController(
     private val inventoryService: InventoryService,
-    private val inventorySecurityService: InventorySecurityService
+    private val inventorySecurityService: InventorySecurityService,
+    private val inventoryAuth: InventoryAuth
 ) {
 
     @HasAccount
@@ -46,6 +48,23 @@ class InventoryController(
             identity = auth.principal.identity,
             account = auth.principal.account!!
         )
+
+    @GetMapping("/{inventoryId}")
+    fun getInventory (
+        @PathVariable inventoryId: Long
+    ): Inventory? {
+        inventoryAuth.hasRead(inventoryId)
+        return inventoryService.getInventory(inventoryId)
+    }
+
+
+    @DeleteMapping("/{inventoryId}")
+    fun deleteInventory(
+        @PathVariable inventoryId: Long
+    ) {
+        inventoryAuth.hasWrite(inventoryId)
+        return inventoryService.deleteAccountInventory(inventoryId)
+    }
 
     @PostMapping("{inventoryId}/permissions")
     fun setInventoryPermissions(
